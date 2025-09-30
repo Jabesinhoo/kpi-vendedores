@@ -1,25 +1,43 @@
-// src/App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register.jsx";
-import useTheme from "./hooks/useTheme"; // 👈 Importamos el hook
+import Dashboard from "./pages/dashboard.jsx";
+import Vendedores from "./pages/Vendedores.jsx";
+import RegistroVentas from "./pages/RegistroVentas.jsx";
+import Evaluaciones from "./pages/Evaluaciones.jsx";
+import useTheme from "./hooks/useTheme";
+import PrivateRoute from "./components/PrivateRoute";
+import Layout from "./components/Layout.jsx";
 
 function App() {
-  // 💥 ESTE ES EL PASO CRÍTICO: Llama el hook para obtener el estado y el toggle
-  const [theme, toggleTheme] = useTheme(); 
+  const [theme, toggleTheme] = useTheme();
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* 💥 PASAMOS LAS PROPIEDADES A LOS COMPONENTES DE PÁGINA */}
-        <Route 
-          path="/" 
-          element={<Login toggleTheme={toggleTheme} currentTheme={theme} />} 
+        <Route
+          path="/"
+          element={<Login toggleTheme={toggleTheme} currentTheme={theme} />}
         />
-        <Route 
-          path="/register" 
-          element={<Register toggleTheme={toggleTheme} currentTheme={theme} />} 
+        <Route
+          path="/register"
+          element={<Register toggleTheme={toggleTheme} currentTheme={theme} />}
         />
+        
+        {/* Rutas protegidas con Layout */}
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Layout theme={theme} toggleTheme={toggleTheme} />
+            </PrivateRoute>
+          }
+        >
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="vendedores" element={<Vendedores />} />
+          <Route path="registro-ventas" element={<RegistroVentas />} />
+          <Route path="evaluaciones" element={<Evaluaciones />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

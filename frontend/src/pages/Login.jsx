@@ -68,7 +68,7 @@ export default function Login() {
 
             const data = await res.json();
             if (res.ok) {
-                showNotification("✅ Login exitoso. Redirigiendo...", "success");
+                showNotification(" Login exitoso. Redirigiendo...", "success");
                 localStorage.setItem("token", data.token);
                 
                 setTimeout(() => {
@@ -76,10 +76,10 @@ export default function Login() {
                 }, 1500);
 
             } else {
-                showNotification(`❌ ${data.error || 'Credenciales inválidas.'}`, "error");
+                showNotification(` ${data.error || 'Credenciales inválidas.'}`, "error");
             }
         } catch (err) {
-            showNotification("❌ Error conectando con el servidor", "error");
+            showNotification(" Error conectando con el servidor", "error");
         } finally {
             setIsSubmitting(false);
         }

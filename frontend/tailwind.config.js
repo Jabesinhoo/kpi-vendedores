@@ -9,7 +9,10 @@ export default {
     extend: {
       colors: {
         'primary-kpi': '#1D4ED8', 
-      }
+      },
+      fontFamily: {
+      sans: ["Verdana", "Geneva", "Tahoma", "sans-serif"],
+    },
     },
   },
   plugins: [],

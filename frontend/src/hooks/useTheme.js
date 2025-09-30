@@ -1,24 +1,24 @@
 import { useState, useEffect } from 'react';
 
 export default function useTheme() {
-  const [theme, setTheme] = useState(() => {
-    // 1. Cargar el tema guardado
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      return savedTheme;
-    }
-    // 2. Usar preferencia del sistema
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
-
+  const [theme, setTheme] = useState('light');
   const [mounted, setMounted] = useState(false);
 
-  const toggleTheme = () => {
-    setTheme(current => (current === 'light' ? 'dark' : 'light'));
-  };
+  useEffect(() => {
+    // Solo ejecutar en el cliente
+    setMounted(true);
+    
+    // Cargar tema guardado o preferencia del sistema
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    setTheme(initialTheme);
+  }, []);
 
   useEffect(() => {
-    setMounted(true);
+    if (!mounted) return;
+
     const root = window.document.documentElement;
     
     // Remover clases anteriores
@@ -26,10 +26,16 @@ export default function useTheme() {
     // Añadir clase actual
     root.classList.add(theme);
     
+    // Actualizar atributo data-theme para mejor compatibilidad
+    root.setAttribute('data-theme', theme);
+    
     // Guardar preferencia
     localStorage.setItem('theme', theme);
-  }, [theme]);
+  }, [theme, mounted]);
 
-  // Evitar renderizado hasta montaje en cliente
+  const toggleTheme = () => {
+    setTheme(current => (current === 'light' ? 'dark' : 'light'));
+  };
+
   return [mounted ? theme : 'light', toggleTheme];
 }

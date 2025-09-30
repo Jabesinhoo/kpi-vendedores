@@ -1,5 +1,6 @@
+// backend/src/models/Vendedor.js
 import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+import sequelize from '../../config/database.js';
 
 const Vendedor = sequelize.define("Vendedor", {
     id: {
@@ -21,11 +22,11 @@ const Vendedor = sequelize.define("Vendedor", {
         type: DataTypes.DATEONLY,
         defaultValue: DataTypes.NOW,
         allowNull: false,
-        field: 'fecha_ingreso' // Nombre de la columna en la BD (snake_case)
+        field: 'fecha_ingreso'
     }
 }, {
     tableName: "vendedores",
-    timestamps: true, // Sequelize añade createdAt y updatedAt
+    timestamps: true,
 });
 
 export default Vendedor;

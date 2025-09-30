@@ -2,14 +2,15 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import sequelize from "./config/database.js"; // ✅ ahora sí es correcto
+import sequelize from "./config/database.js"; // ✅ Usar import en lugar de require
+import './src/models/associations.js'; // 👈 IMPORTA LAS ASOCIACIONES AQUÍ
 
 // Middlewares de seguridad
 import { securityHeaders, generalLimiter, authLimiter } from "./src/middlewares/security.js";
-import { registerValidation, loginValidation } from "./src/middlewares/security.js";
 
 // Rutas
 import authRoutes from "./src/routes/authRoutes.js";
+import kpiRoutes from "./src/routes/kpiRoutes.js";
 
 dotenv.config();
 
@@ -30,11 +31,12 @@ app.use(express.json({ limit: "10mb" }));
 
 // Ruta de prueba
 app.get("/", (req, res) => {
-  res.send("🚀 API KPI funcionando correctamente");
+  res.send("✅ API KPI funcionando correctamente");
 });
 
 // Rutas API
 app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/kpi", kpiRoutes);
 
 const PORT = process.env.PORT || 5000;
 

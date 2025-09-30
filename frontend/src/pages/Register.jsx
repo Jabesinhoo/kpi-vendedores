@@ -63,7 +63,7 @@ export default function Register() {
     
     // 🚨 VALIDACIÓN DE CONTRASEÑAS
     if (password !== confirmPassword) {
-        showNotification("❌ Las contraseñas no coinciden. Verifícalas.", "error");
+        showNotification(" Las contraseñas no coinciden. Verifícalas.", "error");
         return;
     }
 
@@ -80,12 +80,12 @@ export default function Register() {
 
       const data = await res.json();
       if (res.ok) {
-        showNotification("✅ Usuario registrado con éxito", "success");
+        showNotification(" Usuario registrado con éxito", "success");
         setTimeout(() => {
             window.location.href = "/";
         }, 1500);
       } else {
-        showNotification(`❌ ${data.error || 'Error desconocido al registrar.'}`, "error");
+        showNotification(` ${data.error || 'Error desconocido al registrar.'}`, "error");
       }
     } catch (err) {
       showNotification("Error conectando con el servidor", "error");
