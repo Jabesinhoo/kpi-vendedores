@@ -5,7 +5,7 @@ import Usuario from "../models/Usuario.js";
 // Registrar usuario
 export async function register(req, res) {
   try {
-    const { nombre, usuario, password, rol } = req.body;
+    const { nombre, usuario, password } = req.body; // Remover rol del body
 
     const hash = await bcrypt.hash(password, 10);
 
@@ -13,7 +13,7 @@ export async function register(req, res) {
       nombre,
       usuario,
       password: hash,
-      rol,
+      rol: "registrador", // Siempre por defecto
     });
 
     res.status(201).json({

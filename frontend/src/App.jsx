@@ -1,7 +1,7 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Register from "./pages/Register.jsx";
 import useTheme from "./hooks/useTheme"; // 👈 Importamos el hook
 
 function App() {
