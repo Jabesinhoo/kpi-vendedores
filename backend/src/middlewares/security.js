@@ -1,7 +1,7 @@
-// backend/src/middlewares/security.js
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import { body, validationResult } from "express-validator";
+import { body, validationResult } from "express-validator";  // 👈 aquí incluimos body
+
 
 // Rate Limiting
 export const authLimiter = rateLimit({

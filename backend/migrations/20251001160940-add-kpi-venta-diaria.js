@@ -1,0 +1,61 @@
+export async function up(queryInterface, Sequelize) {
+  await queryInterface.createTable("kpi_ventas_diarias", {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    fecha: {
+      type: Sequelize.DATEONLY,
+      allowNull: false,
+    },
+    monto_venta: {
+      type: Sequelize.DECIMAL(15, 2),
+      allowNull: false,
+      defaultValue: 0.00,
+    },
+    asistencia: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    aprendizaje_puntuacion: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    },
+    vestimenta_puntuacion: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    },
+    area_puntuacion: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    },
+    registrado_por_usuario_id: {
+      type: Sequelize.UUID,
+      allowNull: true,
+    },
+    vendedorId: {
+      type: Sequelize.UUID,
+      allowNull: false,
+      references: {
+        model: "vendedores",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "CASCADE",
+    },
+    createdAt: {
+      type: Sequelize.DATE,
+      allowNull: false,
+    },
+    updatedAt: {
+      type: Sequelize.DATE,
+      allowNull: false,
+    },
+  });
+}
+
+export async function down(queryInterface) {
+  await queryInterface.dropTable("kpi_ventas_diarias");
+}

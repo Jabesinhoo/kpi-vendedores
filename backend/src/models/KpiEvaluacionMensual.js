@@ -40,7 +40,7 @@ const KpiEvaluacionMensual = sequelize.define("KpiEvaluacionMensual", {
     },
     evaluadorId: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
         field: 'evaluador_id'
     }
 }, {

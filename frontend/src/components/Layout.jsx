@@ -3,8 +3,7 @@ import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
-  TrendingUp, 
-  ClipboardCheck,
+  TrendingUp,
   Menu,
   X,
   Sun,
@@ -21,7 +20,6 @@ const Layout = ({ theme, toggleTheme }) => {
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Vendedores', href: '/vendedores', icon: Users },
     { name: 'Registro Ventas', href: '/registro-ventas', icon: TrendingUp },
-    { name: 'Evaluaciones', href: '/evaluaciones', icon: ClipboardCheck },
   ];
 
   const isActive = (path) => location.pathname === path;

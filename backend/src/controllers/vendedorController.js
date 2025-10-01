@@ -9,7 +9,8 @@ export const vendedorController = {
         try {
             const vendedores = await Vendedor.findAll({
                 where: { activo: true },
-                order: [['nombre', 'ASC']]
+                order: [['nombre', 'ASC']],
+                attributes: ['id', 'nombre', 'activo', 'createdAt'] // Incluir createdAt para mostrar fecha de creación
             });
 
             return res.json({ data: vendedores });
@@ -21,11 +22,15 @@ export const vendedorController = {
 
     async createVendedor(req, res) {
         try {
-            const { nombre, fechaIngreso } = req.body;
+            const { nombre } = req.body; // Solo recibir nombre
+
+            // Validar que el nombre no esté vacío
+            if (!nombre || nombre.trim() === '') {
+                return res.status(400).json({ error: 'El nombre del vendedor es requerido' });
+            }
 
             const vendedor = await Vendedor.create({
-                nombre,
-                fechaIngreso: fechaIngreso || new Date(),
+                nombre: nombre.trim(),
                 activo: true
             });
 
@@ -35,6 +40,35 @@ export const vendedorController = {
             });
         } catch (error) {
             console.error('Error en createVendedor:', error);
+            
+            // Manejar errores de duplicados u otros errores de base de datos
+            if (error.name === 'SequelizeUniqueConstraintError') {
+                return res.status(400).json({ error: 'Ya existe un vendedor con ese nombre' });
+            }
+            
+            return res.status(500).json({ error: 'Error del servidor al crear vendedor' });
+        }
+    },
+
+    async toggleVendedorActivo(req, res) {
+        try {
+            const { id } = req.params;
+            
+            const vendedor = await Vendedor.findByPk(id);
+            if (!vendedor) {
+                return res.status(404).json({ error: 'Vendedor no encontrado' });
+            }
+
+            // Cambiar estado activo/inactivo
+            vendedor.activo = !vendedor.activo;
+            await vendedor.save();
+
+            return res.json({
+                message: `Vendedor ${vendedor.activo ? 'activado' : 'desactivado'} exitosamente`,
+                data: vendedor
+            });
+        } catch (error) {
+            console.error('Error en toggleVendedorActivo:', error);
             return res.status(500).json({ error: 'Error del servidor' });
         }
     },
@@ -44,7 +78,9 @@ export const vendedorController = {
             const { id } = req.params;
             const { mes, anio } = req.query;
 
-            const vendedor = await Vendedor.findByPk(id);
+            const vendedor = await Vendedor.findByPk(id, {
+                attributes: ['id', 'nombre', 'activo', 'createdAt']
+            });
             
             if (!vendedor) {
                 return res.status(404).json({ error: 'Vendedor no encontrado' });

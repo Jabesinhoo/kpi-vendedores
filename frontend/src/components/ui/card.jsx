@@ -18,3 +18,4 @@ export const CardTitle = ({ className, ...props }) => (
 export const CardContent = ({ className, ...props }) => (
   <div className={`p-6 pt-0 ${className || ''}`} {...props} />
 );
+

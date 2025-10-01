@@ -1,4 +1,3 @@
-// backend/src/models/KpiVentaDiaria.js
 import { DataTypes } from "sequelize";
 import sequelize from '../../config/database.js';
 
@@ -13,16 +12,36 @@ const KpiVentaDiaria = sequelize.define("KpiVentaDiaria", {
         allowNull: false,
         unique: 'unique_vendedor_fecha'
     },
-    montoVentaMillones: {
-        type: DataTypes.DECIMAL(10, 2),
+    // Cambiar de montoVentaMillones a montoVenta para manejar pesos completos
+    montoVenta: {
+        type: DataTypes.DECIMAL(15, 2), // Para manejar montos grandes en pesos colombianos
         defaultValue: 0.00,
         allowNull: false,
-        field: 'monto_venta_millones'
+        field: 'monto_venta'
     },
     asistencia: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false,
+    },
+    // Agregar campos de conducta diaria
+    aprendizajePuntuacion: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        validate: { min: 1, max: 5 },
+        field: 'aprendizaje_puntuacion'
+    },
+    vestimentaPuntuacion: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        validate: { min: 1, max: 5 },
+        field: 'vestimenta_puntuacion'
+    },
+    areaPuntuacion: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        validate: { min: 1, max: 5 },
+        field: 'area_puntuacion'
     },
     registradoPorUsuarioId: {
         type: DataTypes.INTEGER,

@@ -4,7 +4,6 @@ import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/dashboard.jsx";
 import Vendedores from "./pages/Vendedores.jsx";
 import RegistroVentas from "./pages/RegistroVentas.jsx";
-import Evaluaciones from "./pages/Evaluaciones.jsx";
 import useTheme from "./hooks/useTheme";
 import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout.jsx";
@@ -36,7 +35,6 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="vendedores" element={<Vendedores />} />
           <Route path="registro-ventas" element={<RegistroVentas />} />
-          <Route path="evaluaciones" element={<Evaluaciones />} />
         </Route>
       </Routes>
     </BrowserRouter>

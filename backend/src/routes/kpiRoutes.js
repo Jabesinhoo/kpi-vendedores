@@ -5,24 +5,26 @@ import { validateVentaDiaria, validateEvaluacionMensual } from '../middlewares/v
 import { kpiVentaDiariaController } from '../controllers/kpiVentaDiariaController.js';
 import { kpiEvaluacionMensualController } from '../controllers/kpiEvaluacionMensualController.js';
 import { vendedorController } from '../controllers/vendedorController.js';
+import { dashboardController } from '../controllers/dashboardController.js';
 
 const router = express.Router();
 
-// Rutas de Vendedores
+
 router.get('/vendedores', authenticateToken, vendedorController.getVendedoresActivos);
 router.post('/vendedores', authenticateToken, vendedorController.createVendedor);
 router.get('/vendedores/:id/dashboard', authenticateToken, vendedorController.getDashboardVendedor);
+router.patch('/vendedores/:id/toggle-activo', authenticateToken, vendedorController.toggleVendedorActivo);
 
-// Rutas de Ventas Diarias
-router.post('/ventas-diarias', authenticateToken, validateVentaDiaria, kpiVentaDiariaController.upsertVentaDiaria);
+
+router.get('/ventas-diarias/vendedor/:vendedorId/fecha/:fecha', authenticateToken, kpiVentaDiariaController.getRegistroPorFecha);
 router.get('/ventas-diarias/vendedor/:vendedorId', authenticateToken, kpiVentaDiariaController.getVentasByVendedor);
 router.get('/ventas-diarias/resumen/:vendedorId/:mes/:anio', authenticateToken, kpiVentaDiariaController.getResumenMensual);
+router.post('/ventas-diarias', authenticateToken, kpiVentaDiariaController.upsertVentaDiaria);
+router.get('/dashboard/:vendedorId/:mes/:anio', authenticateToken, dashboardController.getDashboardData);
 
-// Rutas de Evaluación Mensual
 router.post('/evaluaciones-mensuales', authenticateToken, validateEvaluacionMensual, kpiEvaluacionMensualController.upsertEvaluacion);
 router.get('/evaluaciones-mensuales/vendedor/:vendedorId', authenticateToken, kpiEvaluacionMensualController.getEvaluacionesByVendedor);
 
-// Obtener todas las ventas (para el dashboard)
 router.get('/ventas-diarias/vendedor/all', authenticateToken, async (req, res) => {
   try {
     const ventas = await KpiVentaDiaria.findAll({
