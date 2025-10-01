@@ -4,13 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { 
-    Calendar, 
-    DollarSign, 
-    User, 
-    XCircle, 
-    CheckCircle, 
-    Check, 
+import {
+    Calendar,
+    DollarSign,
+    User,
+    XCircle,
+    CheckCircle,
+    Check,
     X,
     Star,
     AlertTriangle,
@@ -28,7 +28,7 @@ const RegistroVentas = () => {
         vestimentaPuntuacion: 3,
         areaPuntuacion: 3
     });
-    
+
     const [vendedores, setVendedores] = useState([]);
     const [registrosRecientes, setRegistrosRecientes] = useState([]);
     const [notification, setNotification] = useState({ message: '', type: '' });
@@ -39,7 +39,7 @@ const RegistroVentas = () => {
     useEffect(() => {
         cargarVendedores();
         cargarRegistrosRecientes();
-        
+
         // Obtener vendedorId de URL si existe
         const urlParams = new URLSearchParams(window.location.search);
         const vendedorId = urlParams.get('vendedor');
@@ -52,7 +52,7 @@ const RegistroVentas = () => {
         // Verificar si es día laboral cuando cambia la fecha
         const esLaboral = esDiaLaboral(formData.fecha);
         setEsDiaNoLaboral(!esLaboral);
-        
+
         // Si hay vendedor seleccionado y fecha, buscar registro existente
         if (formData.vendedorId && formData.fecha) {
             cargarRegistroExistente();
@@ -70,7 +70,7 @@ const RegistroVentas = () => {
             const response = await fetch('http://localhost:5000/api/kpi/vendedores', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
+
             if (response.ok) {
                 const data = await response.json();
                 setVendedores(data.data.filter(v => v.activo)); // Solo vendedores activos
@@ -87,7 +87,7 @@ const RegistroVentas = () => {
                 `http://localhost:5000/api/kpi/ventas-diarias/vendedor/${formData.vendedorId}/fecha/${formData.fecha}`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
-            
+
             if (response.ok) {
                 const data = await response.json();
                 if (data.data) {
@@ -125,7 +125,7 @@ const RegistroVentas = () => {
             const response = await fetch('http://localhost:5000/api/kpi/ventas-diarias/vendedor/all', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
+
             if (response.ok) {
                 const data = await response.json();
                 setRegistrosRecientes(data.data.slice(0, 8));
@@ -139,7 +139,7 @@ const RegistroVentas = () => {
         e.preventDefault();
         setNotification({ message: '', type: '' });
         setLoading(true);
-        
+
         if (!formData.vendedorId) {
             showNotification('Por favor seleccione un vendedor', 'error');
             setLoading(false);
@@ -184,10 +184,10 @@ const RegistroVentas = () => {
             if (response.ok) {
                 const result = await response.json();
                 showNotification(
-                    `${result.message} ${registroExistente ? '(Actualizado)' : '(Creado)'}`, 
+                    `${result.message} ${registroExistente ? '(Actualizado)' : '(Creado)'}`,
                     'success'
                 );
-                
+
                 cargarRegistrosRecientes();
                 cargarRegistroExistente(); // Recargar registro existente
             } else {
@@ -216,11 +216,10 @@ const RegistroVentas = () => {
                         key={star}
                         type="button"
                         onClick={() => !disabled && onChange(star)}
-                        className={`p-1 transition-transform hover:scale-110 ${
-                            star <= value 
-                                ? 'text-yellow-400' 
+                        className={`p-1 transition-transform hover:scale-110 ${star <= value
+                                ? 'text-yellow-400'
                                 : 'text-gray-300 dark:text-gray-600'
-                        } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                            } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                         disabled={disabled}
                     >
                         <Star className="h-6 w-6 fill-current" />
@@ -233,14 +232,14 @@ const RegistroVentas = () => {
     const NotificationBanner = () => {
         if (!notification.message) return null;
 
-        const Icon = notification.type === 'success' ? CheckCircle : 
-                    notification.type === 'warning' ? AlertTriangle : XCircle;
-        
-        const colorClass = notification.type === 'success' 
-            ? 'bg-green-100 text-green-700 border border-green-300' 
+        const Icon = notification.type === 'success' ? CheckCircle :
+            notification.type === 'warning' ? AlertTriangle : XCircle;
+
+        const colorClass = notification.type === 'success'
+            ? 'bg-green-100 text-green-700 border border-green-300'
             : notification.type === 'warning'
-            ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
-            : 'bg-red-100 text-red-700 border border-red-300';
+                ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+                : 'bg-red-100 text-red-700 border border-red-300';
 
         return (
             <div className={`p-3 rounded-lg flex items-center gap-2 ${colorClass}`}>
@@ -297,7 +296,7 @@ const RegistroVentas = () => {
                                 <select
                                     id="vendedorId"
                                     value={formData.vendedorId}
-                                    onChange={(e) => setFormData({...formData, vendedorId: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, vendedorId: e.target.value })}
                                     className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     required
                                 >
@@ -317,7 +316,7 @@ const RegistroVentas = () => {
                                     type="date"
                                     id="fecha"
                                     value={formData.fecha}
-                                    onChange={(e) => setFormData({...formData, fecha: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
                                     required
                                     className="w-full p-3"
                                 />
@@ -326,11 +325,10 @@ const RegistroVentas = () => {
                             {/* Asistencia */}
                             <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 dark:bg-gray-900">
                                 <div className="flex items-center space-x-3">
-                                    <div className={`p-2 rounded-full ${
-                                        formData.asistencia 
-                                            ? 'bg-green-100 text-green-600' 
+                                    <div className={`p-2 rounded-full ${formData.asistencia
+                                            ? 'bg-green-100 text-green-600'
                                             : 'bg-red-100 text-red-600'
-                                    }`}>
+                                        }`}>
                                         {formData.asistencia ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
                                     </div>
                                     <div>
@@ -345,8 +343,8 @@ const RegistroVentas = () => {
                                 <Switch
                                     id="asistencia"
                                     checked={formData.asistencia}
-                                    onCheckedChange={(checked) => setFormData(prev => ({ 
-                                        ...prev, 
+                                    onCheckedChange={(checked) => setFormData(prev => ({
+                                        ...prev,
                                         asistencia: checked,
                                         montoVenta: checked ? prev.montoVenta : ''
                                     }))}
@@ -362,15 +360,16 @@ const RegistroVentas = () => {
                                     <div className="relative">
                                         <Input
                                             type="number"
-                                            step="1000"
+                                            step="1"     // acepta cualquier número entero
                                             min="0"
                                             id="montoVenta"
                                             value={formData.montoVenta}
-                                            onChange={(e) => setFormData({...formData, montoVenta: e.target.value})}
+                                            onChange={(e) => setFormData({ ...formData, montoVenta: e.target.value })}
                                             placeholder="0"
                                             required
                                             className="w-full p-3 pr-24 text-lg font-semibold"
                                         />
+
                                         <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                                             <span className="text-gray-500 text-sm">COP</span>
                                         </div>
@@ -390,22 +389,22 @@ const RegistroVentas = () => {
                                         <Star className="h-4 w-4" />
                                         Evaluación de Conducta Diaria
                                     </h3>
-                                    
+
                                     <StarRating
                                         value={formData.aprendizajePuntuacion}
-                                        onChange={(value) => setFormData({...formData, aprendizajePuntuacion: value})}
+                                        onChange={(value) => setFormData({ ...formData, aprendizajePuntuacion: value })}
                                         label="Aprendizaje - Nivel de aprovechamiento del día"
                                     />
-                                    
+
                                     <StarRating
                                         value={formData.vestimentaPuntuacion}
-                                        onChange={(value) => setFormData({...formData, vestimentaPuntuacion: value})}
+                                        onChange={(value) => setFormData({ ...formData, vestimentaPuntuacion: value })}
                                         label="Vestimenta - Presentación personal adecuada"
                                     />
-                                    
+
                                     <StarRating
                                         value={formData.areaPuntuacion}
-                                        onChange={(value) => setFormData({...formData, areaPuntuacion: value})}
+                                        onChange={(value) => setFormData({ ...formData, areaPuntuacion: value })}
                                         label="Área de Trabajo - Orden y limpieza"
                                     />
                                 </div>
@@ -415,8 +414,8 @@ const RegistroVentas = () => {
                             <NotificationBanner />
 
                             {/* Botón de Envío */}
-                            <Button 
-                                type="submit" 
+                            <Button
+                                type="submit"
                                 className="w-full py-3 text-lg font-semibold"
                                 disabled={loading}
                             >
@@ -455,15 +454,14 @@ const RegistroVentas = () => {
                                                 {getVendedorNombre(registro.vendedorId)}
                                             </span>
                                         </div>
-                                        <div className={`px-2 py-1 rounded-full text-xs ${
-                                            registro.asistencia 
-                                                ? 'bg-green-100 text-green-700' 
+                                        <div className={`px-2 py-1 rounded-full text-xs ${registro.asistencia
+                                                ? 'bg-green-100 text-green-700'
                                                 : 'bg-red-100 text-red-700'
-                                        }`}>
+                                            }`}>
                                             {registro.asistencia ? 'Presente' : 'Ausente'}
                                         </div>
                                     </div>
-                                    
+
                                     <div className="text-sm text-gray-600 mb-2">
                                         {new Date(registro.fecha).toLocaleDateString('es', {
                                             weekday: 'short',
@@ -479,7 +477,7 @@ const RegistroVentas = () => {
                                                     {formatPesos(registro.montoVenta)}
                                                 </span>
                                             </div>
-                                            
+
                                             <div className="flex gap-4 text-xs text-gray-500">
                                                 <div className="flex items-center gap-1">
                                                     <Star className="h-3 w-3 text-yellow-400" />
@@ -498,7 +496,7 @@ const RegistroVentas = () => {
                                     )}
                                 </div>
                             ))}
-                            
+
                             {registrosRecientes.length === 0 && (
                                 <div className="text-center py-8 text-gray-500">
                                     <Calendar className="h-12 w-12 mx-auto mb-3 opacity-50" />

@@ -15,20 +15,30 @@ dotenv.config();
 
 const app = express();
 
-// CORS debe ir PRIMERO, antes de cualquier otro middleware
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL?.split(',') || ["http://localhost:5173", "http://localhost:3000"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  })
-);
+// ✅ Detrás de ngrok (proxy): evita problemas con express-rate-limit
+app.set('trust proxy', 1);
 
-// Manejar preflight requests explícitamente
-app.options('*', cors());
+// 🌐 CORS flexible: localhost y cualquier dominio de ngrok
+const allowedOrigins = [
+  /^http:\/\/localhost:(5173|3000)$/,
+  /^https:\/\/.*\.ngrok-free\.(dev|app)$/
+];
+
+const corsOptions = {
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true); // Postman o CLI
+    if (allowedOrigins.some((re) => re.test(origin))) return cb(null, true);
+    return cb(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Preflight con mismas reglas
 
 // Middlewares de seguridad
 app.use(securityHeaders);
@@ -85,7 +95,6 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log("✅ Conectado a PostgreSQL con Sequelize");
     
-    // En producción, no usar force: true
     await sequelize.sync({ 
       force: false,
       alter: process.env.NODE_ENV === 'development' // Solo en desarrollo

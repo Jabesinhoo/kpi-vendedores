@@ -41,7 +41,7 @@ const Layout = ({ theme, toggleTheme }) => {
           <div className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-lg flex flex-col">
             <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
               <h1 className="text-xl font-bold text-gray-800 dark:text-white">
-                Sistema KPI
+                KPI
               </h1>
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -110,7 +110,7 @@ const Layout = ({ theme, toggleTheme }) => {
           {/* Header del sidebar */}
           <div className="flex items-center justify-between h-16 flex-shrink-0 px-4 border-b dark:border-gray-700">
             <h1 className="text-xl font-bold text-gray-800 dark:text-white">
-              Sistema KPI
+              KPI
             </h1>
           </div>
           
@@ -180,7 +180,7 @@ const Layout = ({ theme, toggleTheme }) => {
             {/* Espacio para título de página si lo deseas */}
             <div className="flex-1 lg:hidden">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white text-center">
-                {navigation.find(item => isActive(item.href))?.name || 'Sistema KPI'}
+                {navigation.find(item => isActive(item.href))?.name || 'KPI'}
               </h2>
             </div>
             
