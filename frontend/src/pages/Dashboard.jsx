@@ -35,7 +35,7 @@ const Dashboard = () => {
     const cargarVendedores = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/vendedores`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/vendedores`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -56,7 +56,7 @@ const Dashboard = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/dashboard/${vendedorSeleccionado}/${mes}/${anio}`,
+                `${import.meta.env.VITE_API_URL}api/kpi/dashboard/${vendedorSeleccionado}/${mes}/${anio}`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 

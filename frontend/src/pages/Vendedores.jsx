@@ -38,7 +38,7 @@ const Vendedores = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/vendedores`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/vendedores`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -67,7 +67,7 @@ const Vendedores = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/vendedores`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/vendedores`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ const Vendedores = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/vendedores/${vendedorId}/toggle-activo`,
+                `${import.meta.env.VITE_API_URL}api/kpi/vendedores/${vendedorId}/toggle-activo`,
                 {
                     method: 'PATCH',
                     headers: {

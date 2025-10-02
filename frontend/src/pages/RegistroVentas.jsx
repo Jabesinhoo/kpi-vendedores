@@ -67,7 +67,7 @@ const RegistroVentas = () => {
     const cargarVendedores = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/vendedores`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/vendedores`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -84,7 +84,7 @@ const RegistroVentas = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/ventas-diarias/vendedor/${formData.vendedorId}/fecha/${formData.fecha}`,
+                `${import.meta.env.VITE_API_URL}api/kpi/ventas-diarias/vendedor/${formData.vendedorId}/fecha/${formData.fecha}`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 
@@ -124,7 +124,7 @@ const RegistroVentas = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/ventas-diarias/vendedor/all`,
+                `${import.meta.env.VITE_API_URL}api/kpi/ventas-diarias/vendedor/all`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 
@@ -167,7 +167,7 @@ const RegistroVentas = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/ventas-diarias`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/ventas-diarias`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
