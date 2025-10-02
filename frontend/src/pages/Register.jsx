@@ -58,41 +58,44 @@ export default function Register() {
     }, 5000);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // 🚨 VALIDACIÓN DE CONTRASEÑAS
-    if (password !== confirmPassword) {
-        showNotification(" Las contraseñas no coinciden. Verifícalas.", "error");
-        return;
+const API_URL = import.meta.env.VITE_API_URL;
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  // 🚨 VALIDACIÓN DE CONTRASEÑAS
+  if (password !== confirmPassword) {
+      showNotification(" Las contraseñas no coinciden. Verifícalas.", "error");
+      return;
+  }
+
+  if (isSubmitting) return;
+
+  setIsSubmitting(true);
+  try {
+    const res = await fetch(`${API_URL}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // Enviamos solo 'password', el hash lo maneja el backend con Bcrypt
+      body: JSON.stringify({ nombre, usuario, password }), 
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      showNotification(" Usuario registrado con éxito", "success");
+      setTimeout(() => {
+          window.location.href = "/";
+      }, 1500);
+    } else {
+      showNotification(` ${data.error || 'Error desconocido al registrar.'}`, "error");
     }
+  } catch (err) {
+    showNotification(" Error conectando con el servidor", "error");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
-    if (isSubmitting) return;
-
-    setIsSubmitting(true);
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // Enviamos solo 'password', el hash debe hacerlo el backend (Node.js/Bcrypt)
-        body: JSON.stringify({ nombre, usuario, password }), 
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        showNotification(" Usuario registrado con éxito", "success");
-        setTimeout(() => {
-            window.location.href = "/";
-        }, 1500);
-      } else {
-        showNotification(` ${data.error || 'Error desconocido al registrar.'}`, "error");
-      }
-    } catch (err) {
-      showNotification("Error conectando con el servidor", "error");
-    } finally {
-        setIsSubmitting(false);
-    }
-  };
   
   // Clases base (sin cambios)
   const bgClass = isDarkMode 

@@ -54,36 +54,39 @@ export default function Login() {
         }, 5000);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (isSubmitting) return;
+    const API_URL = import.meta.env.VITE_API_URL;
 
-        setIsSubmitting(true);
-        try {
-            const res = await fetch("http://localhost:5000/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ usuario, password }),
-            });
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
 
-            const data = await res.json();
-            if (res.ok) {
-                showNotification(" Login exitoso. Redirigiendo...", "success");
-                localStorage.setItem("token", data.token);
-                
-                setTimeout(() => {
-                    window.location.href = "/dashboard";
-                }, 1500);
+    setIsSubmitting(true);
+    try {
+        const res = await fetch(`${API_URL}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ usuario, password }),
+        });
 
-            } else {
-                showNotification(` ${data.error || 'Credenciales inválidas.'}`, "error");
-            }
-        } catch (err) {
-            showNotification(" Error conectando con el servidor", "error");
-        } finally {
-            setIsSubmitting(false);
+        const data = await res.json();
+        if (res.ok) {
+            showNotification(" Login exitoso. Redirigiendo...", "success");
+            localStorage.setItem("token", data.token);
+
+            setTimeout(() => {
+                window.location.href = "/dashboard";
+            }, 1500);
+
+        } else {
+            showNotification(` ${data.error || 'Credenciales inválidas.'}`, "error");
         }
-    };
+    } catch (err) {
+        showNotification(" Error conectando con el servidor", "error");
+    } finally {
+        setIsSubmitting(false);
+    }
+};
+
 
     // Clases base (sin cambios)
     const bgClass = isDarkMode 
