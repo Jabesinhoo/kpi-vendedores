@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 
-import { 
-    TrendingUp, 
-    Target, 
-    Calendar, 
-    DollarSign, 
+import {
+    TrendingUp,
+    Target,
+    Calendar,
+    DollarSign,
     Award,
     Users,
     PieChart,
@@ -35,10 +35,11 @@ const Dashboard = () => {
     const cargarVendedores = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/kpi/vendedores', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/vendedores`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
+
+
             if (response.ok) {
                 const data = await response.json();
                 setVendedores(data.data);
@@ -55,10 +56,10 @@ const Dashboard = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `http://localhost:5000/api/kpi/dashboard/${vendedorSeleccionado}/${mes}/${anio}`,
+                `${import.meta.env.VITE_API_URL}/dashboard/${vendedorSeleccionado}/${mes}/${anio}`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
-            
+
             if (response.ok) {
                 const data = await response.json();
                 setEstadisticas(data.data);
@@ -99,7 +100,7 @@ const Dashboard = () => {
                         {getVendedorNombre()} • {new Date(anio, mes - 1).toLocaleDateString('es', { month: 'long', year: 'numeric' })}
                     </p>
                 </div>
-                
+
                 <div className="flex gap-4">
                     <select
                         value={vendedorSeleccionado}
@@ -110,19 +111,19 @@ const Dashboard = () => {
                             <option key={v.id} value={v.id}>{v.nombre}</option>
                         ))}
                     </select>
-                    
+
                     <select
                         value={mes}
                         onChange={(e) => setMes(parseInt(e.target.value))}
                         className="p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
                     >
-                        {Array.from({length: 12}, (_, i) => (
-                            <option key={i+1} value={i+1}>
+                        {Array.from({ length: 12 }, (_, i) => (
+                            <option key={i + 1} value={i + 1}>
                                 {new Date(2000, i).toLocaleString('es', { month: 'long' })}
                             </option>
                         ))}
                     </select>
-                    
+
                     <input
                         type="number"
                         value={anio}
@@ -223,9 +224,9 @@ const Dashboard = () => {
                         <div className="h-64 flex items-end justify-between gap-1">
                             {ventasDiarias.map((venta, index) => (
                                 <div key={index} className="flex flex-col items-center flex-1">
-                                    <div 
+                                    <div
                                         className="w-full bg-blue-500 rounded-t transition-all hover:bg-blue-600 cursor-pointer"
-                                        style={{ 
+                                        style={{
                                             height: `${(venta.montoVenta / 5000000) * 100}%`,
                                             maxHeight: '200px'
                                         }}
@@ -256,33 +257,33 @@ const Dashboard = () => {
                                     <span>70% máximo</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div 
+                                    <div
                                         className="bg-blue-600 h-2 rounded-full transition-all"
                                         style={{ width: `${(kpis.kpiVentas / 70) * 100}%` }}
                                     ></div>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div className="flex justify-between text-sm mb-1">
                                     <span>Asistencia y Área de trabajo ({kpis.kpiAsistenciaConducta.toFixed(0)}%)</span>
                                     <span>10% máximo</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div 
+                                    <div
                                         className="bg-green-600 h-2 rounded-full transition-all"
                                         style={{ width: `${(kpis.kpiAsistenciaConducta / 10) * 100}%` }}
                                     ></div>
                                 </div>
                             </div>
-                            
+
                             <div className="pt-4 border-t dark:border-gray-700">
                                 <div className="flex justify-between text-sm mb-1">
                                     <span className="font-semibold">KPI Total</span>
                                     <span className="font-semibold">{kpis.kpiTotal.toFixed(0)}%</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-3">
-                                    <div 
+                                    <div
                                         className="bg-gradient-to-r from-blue-600 to-green-600 h-3 rounded-full transition-all"
                                         style={{ width: `${kpis.kpiTotal}%` }}
                                     ></div>
@@ -316,7 +317,7 @@ const Dashboard = () => {
                                 {ventasDiarias.map((venta) => (
                                     <tr key={venta.id} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                                         <td className="p-3">
-                                            {new Date(venta.fecha).toLocaleDateString('es', { 
+                                            {new Date(venta.fecha).toLocaleDateString('es', {
                                                 weekday: 'short',
                                                 day: 'numeric',
                                                 month: 'short'
@@ -340,8 +341,8 @@ const Dashboard = () => {
                                             {venta.areaPuntuacion ? '⭐'.repeat(venta.areaPuntuacion) : '-'}
                                         </td>
                                         <td className="p-3">
-                                            <Button 
-                                                variant="outline" 
+                                            <Button
+                                                variant="outline"
                                                 size="sm"
                                                 onClick={() => window.location.href = `/registro-ventas?edit=${venta.id}`}
                                             >

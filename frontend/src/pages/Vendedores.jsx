@@ -3,13 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-    Plus, 
-    Users, 
-    Calendar, 
-    XCircle, 
-    CheckCircle, 
-    Edit3, 
+import {
+    Plus,
+    Users,
+    Calendar,
+    XCircle,
+    CheckCircle,
+    Edit3,
     Trash2,
     ToggleLeft,
     ToggleRight,
@@ -38,12 +38,13 @@ const Vendedores = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/kpi/vendedores', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/vendedores`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            
+
+
             if (response.ok) {
                 const data = await response.json();
                 setVendedores(data.data);
@@ -63,10 +64,10 @@ const Vendedores = () => {
         e.preventDefault();
         setNotification({ message: '', type: '' });
         setLoading(true);
-        
+
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/kpi/vendedores', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/vendedores`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -75,10 +76,11 @@ const Vendedores = () => {
                 body: JSON.stringify(formData)
             });
 
+
             if (response.ok) {
                 const result = await response.json();
                 showNotification(result.message || '✅ Vendedor creado exitosamente', 'success');
-                
+
                 setShowForm(false);
                 setFormData({ nombre: '' });
                 cargarVendedores();
@@ -97,12 +99,15 @@ const Vendedores = () => {
     const toggleVendedorActivo = async (vendedorId, estadoActual) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:5000/api/kpi/vendedores/${vendedorId}/toggle-activo`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/vendedores/${vendedorId}/toggle-activo`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 }
-            });
+            );
 
             if (response.ok) {
                 const result = await response.json();
@@ -122,8 +127,8 @@ const Vendedores = () => {
         if (!notification.message) return null;
 
         const Icon = notification.type === 'success' ? CheckCircle : XCircle;
-        const colorClass = notification.type === 'success' 
-            ? 'bg-green-100 text-green-700 border border-green-300' 
+        const colorClass = notification.type === 'success'
+            ? 'bg-green-100 text-green-700 border border-green-300'
             : 'bg-red-100 text-red-700 border border-red-300';
 
         return (
@@ -151,8 +156,8 @@ const Vendedores = () => {
                         Administra el equipo de vendedores y sus métricas
                     </p>
                 </div>
-                <Button 
-                    onClick={() => setShowForm(prev => !prev)} 
+                <Button
+                    onClick={() => setShowForm(prev => !prev)}
                     className="flex items-center gap-2"
                     disabled={loading}
                 >
@@ -183,7 +188,7 @@ const Vendedores = () => {
                                     type="text"
                                     id="nombre"
                                     value={formData.nombre}
-                                    onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                                     required
                                     placeholder="Ingrese el nombre completo del vendedor"
                                     disabled={loading}
@@ -192,8 +197,8 @@ const Vendedores = () => {
                             </div>
 
                             <div className="flex gap-2 pt-2">
-                                <Button 
-                                    type="submit" 
+                                <Button
+                                    type="submit"
                                     disabled={loading || !formData.nombre.trim()}
                                     className="flex items-center gap-2"
                                 >
@@ -204,9 +209,9 @@ const Vendedores = () => {
                                     )}
                                     {loading ? 'Creando...' : 'Guardar Vendedor'}
                                 </Button>
-                                <Button 
-                                    type="button" 
-                                    variant="outline" 
+                                <Button
+                                    type="button"
+                                    variant="outline"
                                     onClick={() => setShowForm(false)}
                                     disabled={loading}
                                 >
@@ -217,7 +222,7 @@ const Vendedores = () => {
                     </CardContent>
                 </Card>
             )}
-             {/* Estadísticas */}
+            {/* Estadísticas */}
             {vendedores.length > 0 && (
                 <Card>
                     <CardContent className="p-4">
@@ -253,23 +258,21 @@ const Vendedores = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {vendedores.map((vendedor) => (
-                        <Card 
-                            key={vendedor.id} 
-                            className={`hover:shadow-xl transition-all duration-300 border-l-4 ${
-                                vendedor.activo 
-                                    ? 'border-l-green-500 hover:border-l-green-600' 
-                                    : 'border-l-gray-400 hover:border-l-gray-500'
-                            }`}
+                        <Card
+                            key={vendedor.id}
+                            className={`hover:shadow-xl transition-all duration-300 border-l-4 ${vendedor.activo
+                                ? 'border-l-green-500 hover:border-l-green-600'
+                                : 'border-l-gray-400 hover:border-l-gray-500'
+                                }`}
                         >
                             <CardContent className="p-6">
                                 {/* Header con estado */}
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center space-x-3">
-                                        <div className={`p-2 rounded-full ${
-                                            vendedor.activo 
-                                                ? 'bg-green-100 text-green-600' 
-                                                : 'bg-gray-100 text-gray-400'
-                                        }`}>
+                                        <div className={`p-2 rounded-full ${vendedor.activo
+                                            ? 'bg-green-100 text-green-600'
+                                            : 'bg-gray-100 text-gray-400'
+                                            }`}>
                                             <Users className="h-5 w-5" />
                                         </div>
                                         <div>
@@ -283,15 +286,14 @@ const Vendedores = () => {
                                     </div>
                                     <button
                                         onClick={() => toggleVendedorActivo(vendedor.id, vendedor.activo)}
-                                        className={`p-1 rounded-full transition-colors ${
-                                            vendedor.activo 
-                                                ? 'text-green-600 hover:text-green-700' 
-                                                : 'text-gray-400 hover:text-gray-600'
-                                        }`}
+                                        className={`p-1 rounded-full transition-colors ${vendedor.activo
+                                            ? 'text-green-600 hover:text-green-700'
+                                            : 'text-gray-400 hover:text-gray-600'
+                                            }`}
                                         title={vendedor.activo ? 'Desactivar vendedor' : 'Activar vendedor'}
                                     >
-                                        {vendedor.activo ? 
-                                            <ToggleRight className="h-5 w-5" /> : 
+                                        {vendedor.activo ?
+                                            <ToggleRight className="h-5 w-5" /> :
                                             <ToggleLeft className="h-5 w-5" />
                                         }
                                     </button>
@@ -307,8 +309,8 @@ const Vendedores = () => {
 
                                 {/* Acciones */}
                                 <div className="flex flex-col gap-2 mt-4">
-                                    <Button 
-                                        variant="default" 
+                                    <Button
+                                        variant="default"
                                         size="sm"
                                         onClick={() => window.location.href = `/dashboard?vendedor=${vendedor.id}`}
                                         className="flex items-center gap-2"
@@ -317,8 +319,8 @@ const Vendedores = () => {
                                         <Eye className="h-3 w-3" />
                                         Ver Dashboard
                                     </Button>
-                                    <Button 
-                                        variant="outline" 
+                                    <Button
+                                        variant="outline"
                                         size="sm"
                                         onClick={() => window.location.href = `/registro-ventas?vendedor=${vendedor.id}`}
                                         className="flex items-center gap-2"
@@ -333,7 +335,7 @@ const Vendedores = () => {
                     ))}
                 </div>
             )}
-            
+
             {/* Estado vacío */}
             {vendedores.length === 0 && !showForm && !loading && (
                 <Card>
@@ -353,7 +355,7 @@ const Vendedores = () => {
                 </Card>
             )}
 
-           
+
         </div>
     );
 };

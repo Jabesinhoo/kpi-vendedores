@@ -67,7 +67,7 @@ const RegistroVentas = () => {
     const cargarVendedores = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/kpi/vendedores', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/vendedores`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -84,9 +84,10 @@ const RegistroVentas = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `http://localhost:5000/api/kpi/ventas-diarias/vendedor/${formData.vendedorId}/fecha/${formData.fecha}`,
+                `${import.meta.env.VITE_API_URL}/ventas-diarias/vendedor/${formData.vendedorId}/fecha/${formData.fecha}`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
+
 
             if (response.ok) {
                 const data = await response.json();
@@ -122,9 +123,11 @@ const RegistroVentas = () => {
     const cargarRegistrosRecientes = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/kpi/ventas-diarias/vendedor/all', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/ventas-diarias/vendedor/all`,
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+
 
             if (response.ok) {
                 const data = await response.json();
@@ -164,7 +167,7 @@ const RegistroVentas = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/kpi/ventas-diarias', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/ventas-diarias`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -180,6 +183,7 @@ const RegistroVentas = () => {
                     areaPuntuacion: formData.asistencia ? formData.areaPuntuacion : null
                 })
             });
+
 
             if (response.ok) {
                 const result = await response.json();
@@ -217,8 +221,8 @@ const RegistroVentas = () => {
                         type="button"
                         onClick={() => !disabled && onChange(star)}
                         className={`p-1 transition-transform hover:scale-110 ${star <= value
-                                ? 'text-yellow-400'
-                                : 'text-gray-300 dark:text-gray-600'
+                            ? 'text-yellow-400'
+                            : 'text-gray-300 dark:text-gray-600'
                             } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                         disabled={disabled}
                     >
@@ -326,8 +330,8 @@ const RegistroVentas = () => {
                             <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 dark:bg-gray-900">
                                 <div className="flex items-center space-x-3">
                                     <div className={`p-2 rounded-full ${formData.asistencia
-                                            ? 'bg-green-100 text-green-600'
-                                            : 'bg-red-100 text-red-600'
+                                        ? 'bg-green-100 text-green-600'
+                                        : 'bg-red-100 text-red-600'
                                         }`}>
                                         {formData.asistencia ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
                                     </div>
@@ -455,8 +459,8 @@ const RegistroVentas = () => {
                                             </span>
                                         </div>
                                         <div className={`px-2 py-1 rounded-full text-xs ${registro.asistencia
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-red-100 text-red-700'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-red-100 text-red-700'
                                             }`}>
                                             {registro.asistencia ? 'Presente' : 'Ausente'}
                                         </div>
