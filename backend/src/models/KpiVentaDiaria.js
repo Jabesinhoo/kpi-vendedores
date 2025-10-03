@@ -11,8 +11,19 @@ const KpiVentaDiaria = sequelize.define("KpiVentaDiaria", {
   fecha: {
     type: DataTypes.DATEONLY,
     allowNull: false,
-    // ❌ NO pongas `unique` aquí
-  },
+    get() {
+        const rawValue = this.getDataValue('fecha');
+        if (!rawValue) return rawValue;
+        
+        if (typeof rawValue === 'string') return rawValue;
+        
+        const date = new Date(rawValue);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+},
   montoVenta: {
     type: DataTypes.DECIMAL(15, 2),
     defaultValue: 0.00,
