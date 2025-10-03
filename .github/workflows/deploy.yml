@@ -1,0 +1,52 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      # Conexión SSH y despliegue por "git pull" en el VPS
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          script: |
+            set -e
+            cd /var/www/kpi-vendedores
+
+            echo ">>> Haciendo git pull"
+            git fetch --all
+            git reset --hard origin/main
+
+            echo ">>> Backend: install & restart"
+            cd backend
+            npm install --omit=dev
+            # Si usas migraciones/seeders, agrégalas aquí:
+            # npx sequelize-cli db:migrate --env production || true
+            # npx sequelize-cli db:seed:all --env production || true
+            cd ..
+
+            echo ">>> Frontend: install & build"
+            cd frontend
+            npm install --omit=dev
+            npm run build
+            cd ..
+
+            echo ">>> PM2 restart"
+            pm2 restart kpi-vendedores --update-env || pm2 start ./backend/server.js --name kpi-vendedores
+            pm2 save
+
+            echo ">>> Recargando Nginx"
+            sudo nginx -t && sudo systemctl reload nginx
+
+            echo ">>> Deploy OK"
