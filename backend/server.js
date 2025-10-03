@@ -20,9 +20,11 @@ app.set('trust proxy', 1);
 
 // 🌐 CORS flexible: localhost y cualquier dominio de ngrok
 const allowedOrigins = [
-  /^http:\/\/localhost:(5173|3000)$/,
-  /^https:\/\/.*\.ngrok-free\.(dev|app)$/
+  /^http:\/\/localhost:(5173|3000)$/,      // desarrollo local
+  /^https:\/\/.*\.ngrok-free\.(dev|app)$/, // pruebas con ngrok
+  /^https:\/\/kpi\.tecnonacho\.com$/       // dominio real en producción
 ];
+
 
 const corsOptions = {
   origin: (origin, cb) => {
