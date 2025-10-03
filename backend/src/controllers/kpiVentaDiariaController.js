@@ -6,37 +6,42 @@ import { esDiaLaboral } from '../../utils/formatters.js';
 export const kpiVentaDiariaController = {
     async upsertVentaDiaria(req, res) {
         try {
-            const { 
-                vendedorId, 
-                fecha, 
-                montoVenta, 
+            const {
+                vendedorId,
+                fecha,
+                montoVenta,
                 asistencia,
                 aprendizajePuntuacion,
                 vestimentaPuntuacion,
                 areaPuntuacion
             } = req.body;
-            
+
+            // ✅ AGREGAR ESTOS LOGS
+            console.log('📅 Fecha recibida:', fecha);
+            console.log('📅 Tipo:', typeof fecha);
+            console.log('📅 Body completo:', req.body);
+
             const registradoPorUsuarioId = req.user.id;
 
             // Validar que no sea domingo
             if (!esDiaLaboral(fecha)) {
-                return res.status(400).json({ 
-                    error: 'No se pueden registrar ventas los domingos ni días festivos' 
+                return res.status(400).json({
+                    error: 'No se pueden registrar ventas los domingos ni días festivos'
                 });
             }
 
             // Validar que si hay asistencia, debe haber puntuaciones
             if (asistencia) {
                 if (!aprendizajePuntuacion || !vestimentaPuntuacion || !areaPuntuacion) {
-                    return res.status(400).json({ 
-                        error: 'Si el vendedor asistió, debe completar todas las puntuaciones de conducta' 
+                    return res.status(400).json({
+                        error: 'Si el vendedor asistió, debe completar todas las puntuaciones de conducta'
                     });
                 }
             } else {
                 // Si no asistió, no puede haber ventas ni puntuaciones
                 if (montoVenta > 0) {
-                    return res.status(400).json({ 
-                        error: 'No puede haber ventas si el vendedor no asistió' 
+                    return res.status(400).json({
+                        error: 'No puede haber ventas si el vendedor no asistió'
                     });
                 }
             }
@@ -121,10 +126,10 @@ export const kpiVentaDiariaController = {
             const promedioVentas = diasTrabajados > 0 ? totalVentas / diasTrabajados : 0;
 
             // Calcular promedios de conducta
-            const evaluacionesConPuntuacion = ventas.filter(v => 
+            const evaluacionesConPuntuacion = ventas.filter(v =>
                 v.aprendizajePuntuacion && v.vestimentaPuntuacion && v.areaPuntuacion
             );
-            
+
             let promediosConducta = { aprendizaje: 0, vestimenta: 0, area: 0 };
             if (evaluacionesConPuntuacion.length > 0) {
                 promediosConducta = {

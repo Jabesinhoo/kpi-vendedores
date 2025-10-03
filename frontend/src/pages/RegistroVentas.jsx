@@ -167,10 +167,7 @@ const RegistroVentas = () => {
     try {
         const token = localStorage.getItem('token');
         
-        // ✅ SOLUCIÓN: Formatear la fecha correctamente
-        // Crear fecha local sin conversión a UTC
-        const [year, month, day] = formData.fecha.split('-');
-        const fechaLocal = `${year}-${month}-${day}`;
+        console.log('📅 Fecha del formulario:', formData.fecha);
         
         const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/ventas-diarias`, {
             method: 'POST',
@@ -180,7 +177,7 @@ const RegistroVentas = () => {
             },
             body: JSON.stringify({
                 vendedorId: formData.vendedorId,
-                fecha: fechaLocal,  // ✅ Usar fecha local formateada
+                fecha: formData.fecha,
                 montoVenta: formData.asistencia ? parseFloat(formData.montoVenta) : 0,
                 asistencia: formData.asistencia,
                 aprendizajePuntuacion: formData.asistencia ? formData.aprendizajePuntuacion : null,
