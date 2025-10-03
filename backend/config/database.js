@@ -12,7 +12,11 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     dialect: 'postgres',
     port: process.env.DB_PORT || 5432,
-    logging: false, // Cambia a console.log si quieres ver las queries SQL
+    timezone: '-05:00',  
+    dialectOptions: {
+      timezone: 'local'  
+    },
+    logging: false,
     pool: {
       max: 5,
       min: 0,
