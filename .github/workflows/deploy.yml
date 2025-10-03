@@ -13,13 +13,13 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      # Conexión SSH y despliegue por "git pull" en el VPS
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             set -e
             cd /var/www/kpi-vendedores
@@ -31,7 +31,7 @@ jobs:
             echo ">>> Backend: install & restart"
             cd backend
             npm install --omit=dev
-            # Si usas migraciones/seeders, agrégalas aquí:
+            # Migraciones/seeders (si aplica en producción):
             # npx sequelize-cli db:migrate --env production || true
             # npx sequelize-cli db:seed:all --env production || true
             cd ..
@@ -49,4 +49,4 @@ jobs:
             echo ">>> Recargando Nginx"
             sudo nginx -t && sudo systemctl reload nginx
 
-            echo ">>> Deploy OK"
+            echo ">>> Deploy OK ✅"
