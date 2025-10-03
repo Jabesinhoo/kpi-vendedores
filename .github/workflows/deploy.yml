@@ -39,7 +39,7 @@ jobs:
             echo ">>> Frontend: install & build"
             cd frontend
             npm install --omit=dev
-            npm vite build
+            npx vite build
             cd ..
 
             echo ">>> PM2 restart"
