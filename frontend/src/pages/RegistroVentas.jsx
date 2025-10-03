@@ -139,72 +139,76 @@ const RegistroVentas = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setNotification({ message: '', type: '' });
-        setLoading(true);
+    e.preventDefault();
+    setNotification({ message: '', type: '' });
+    setLoading(true);
 
-        if (!formData.vendedorId) {
-            showNotification('Por favor seleccione un vendedor', 'error');
+    if (!formData.vendedorId) {
+        showNotification('Por favor seleccione un vendedor', 'error');
+        setLoading(false);
+        return;
+    }
+
+    if (esDiaNoLaboral) {
+        showNotification('⚠️ Hoy es día no laboral. El registro es opcional.', 'warning');
+    }
+
+    // Validaciones
+    if (formData.asistencia) {
+        if (!formData.montoVenta || parseFloat(formData.montoVenta) < 0) {
+            showNotification('Si el vendedor asistió, debe ingresar un monto de venta válido', 'error');
             setLoading(false);
             return;
         }
+    } else {
+        setFormData(prev => ({ ...prev, montoVenta: '0' }));
+    }
 
-        if (esDiaNoLaboral) {
-            showNotification('⚠️ Hoy es día no laboral. El registro es opcional.', 'warning');
-        }
+    try {
+        const token = localStorage.getItem('token');
+        
+        // ✅ SOLUCIÓN: Formatear la fecha correctamente
+        // Crear fecha local sin conversión a UTC
+        const [year, month, day] = formData.fecha.split('-');
+        const fechaLocal = `${year}-${month}-${day}`;
+        
+        const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/ventas-diarias`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                vendedorId: formData.vendedorId,
+                fecha: fechaLocal,  // ✅ Usar fecha local formateada
+                montoVenta: formData.asistencia ? parseFloat(formData.montoVenta) : 0,
+                asistencia: formData.asistencia,
+                aprendizajePuntuacion: formData.asistencia ? formData.aprendizajePuntuacion : null,
+                vestimentaPuntuacion: formData.asistencia ? formData.vestimentaPuntuacion : null,
+                areaPuntuacion: formData.asistencia ? formData.areaPuntuacion : null
+            })
+        });
 
-        // Validaciones
-        if (formData.asistencia) {
-            if (!formData.montoVenta || parseFloat(formData.montoVenta) < 0) {
-                showNotification('Si el vendedor asistió, debe ingresar un monto de venta válido', 'error');
-                setLoading(false);
-                return;
-            }
+        if (response.ok) {
+            const result = await response.json();
+            showNotification(
+                `${result.message} ${registroExistente ? '(Actualizado)' : '(Creado)'}`,
+                'success'
+            );
+
+            cargarRegistrosRecientes();
+            cargarRegistroExistente();
         } else {
-            // Si no asistió, el monto debe ser 0
-            setFormData(prev => ({ ...prev, montoVenta: '0' }));
+            const error = await response.json();
+            showNotification(error.error || 'Error al guardar el registro', 'error');
         }
-
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/ventas-diarias`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    vendedorId: formData.vendedorId,
-                    fecha: formData.fecha,
-                    montoVenta: formData.asistencia ? parseFloat(formData.montoVenta) : 0,
-                    asistencia: formData.asistencia,
-                    aprendizajePuntuacion: formData.asistencia ? formData.aprendizajePuntuacion : null,
-                    vestimentaPuntuacion: formData.asistencia ? formData.vestimentaPuntuacion : null,
-                    areaPuntuacion: formData.asistencia ? formData.areaPuntuacion : null
-                })
-            });
-
-
-            if (response.ok) {
-                const result = await response.json();
-                showNotification(
-                    `${result.message} ${registroExistente ? '(Actualizado)' : '(Creado)'}`,
-                    'success'
-                );
-
-                cargarRegistrosRecientes();
-                cargarRegistroExistente(); // Recargar registro existente
-            } else {
-                const error = await response.json();
-                showNotification(error.error || 'Error al guardar el registro', 'error');
-            }
-        } catch (error) {
-            console.error('Error guardando registro:', error);
-            showNotification('Error de conexión con el servidor', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
+    } catch (error) {
+        console.error('Error guardando registro:', error);
+        showNotification('Error de conexión con el servidor', 'error');
+    } finally {
+        setLoading(false);
+    }
+};
 
     const getVendedorNombre = (vendedorId) => {
         const vendedor = vendedores.find(v => v.id === vendedorId);

@@ -1,12 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register.jsx";
-import Dashboard from "./pages/dashboard.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 import Vendedores from "./pages/Vendedores.jsx";
 import RegistroVentas from "./pages/RegistroVentas.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
 import useTheme from "./hooks/useTheme";
 import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout.jsx";
+
 
 function App() {
   const [theme, toggleTheme] = useTheme();
