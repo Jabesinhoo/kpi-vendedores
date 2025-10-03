@@ -30,7 +30,7 @@ jobs:
 
             echo ">>> Backend: install & restart"
             cd backend
-            npm install --omit=dev
+            npm install 
             # Migraciones/seeders (si aplica en producción):
             # npx sequelize-cli db:migrate --env production || true
             # npx sequelize-cli db:seed:all --env production || true
@@ -38,7 +38,7 @@ jobs:
 
             echo ">>> Frontend: install & build"
             cd frontend
-            npm install --omit=dev
+            npm install 
             npx vite build
             cd ..
 
