@@ -150,7 +150,7 @@ const RegistroVentas = () => {
     }
 
     if (esDiaNoLaboral) {
-        showNotification('⚠️ Hoy es día no laboral. El registro es opcional.', 'warning');
+        showNotification('Hoy es día no laboral. El registro es opcional.', 'warning');
     }
 
     // Validaciones
@@ -167,7 +167,7 @@ const RegistroVentas = () => {
     try {
         const token = localStorage.getItem('token');
         
-        console.log('📅 Fecha del formulario:', formData.fecha);
+        console.log('Fecha del formulario:', formData.fecha);
         
         const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/ventas-diarias`, {
             method: 'POST',

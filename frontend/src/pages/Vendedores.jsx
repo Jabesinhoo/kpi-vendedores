@@ -79,18 +79,18 @@ const Vendedores = () => {
 
             if (response.ok) {
                 const result = await response.json();
-                showNotification(result.message || '✅ Vendedor creado exitosamente', 'success');
+                showNotification(result.message || ' Vendedor creado exitosamente', 'success');
 
                 setShowForm(false);
                 setFormData({ nombre: '' });
                 cargarVendedores();
             } else {
                 const error = await response.json();
-                showNotification(error.error || '❌ Error al crear el vendedor', 'error');
+                showNotification(error.error || ' Error al crear el vendedor', 'error');
             }
         } catch (error) {
             console.error('Error creando vendedor:', error);
-            showNotification('❌ Error de conexión con el servidor', 'error');
+            showNotification('Error de conexión con el servidor', 'error');
         } finally {
             setLoading(false);
         }
