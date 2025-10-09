@@ -1,21 +1,21 @@
 {
   "development": {
     "username": "postgres",
-    "password": "Diosmio07",
+    "password": "1235",
     "database": "kpi",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
-    "password": "Diosmio07",
+    "password": "1235",
     "database": "kpi_test",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
-    "password": "Diosmio07",
+    "password": "1235",
     "database": "kpi",
     "host": "localhost",
     "dialect": "postgres"
