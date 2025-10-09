@@ -12,24 +12,29 @@ const KpiVentaDiaria = sequelize.define("KpiVentaDiaria", {
     type: DataTypes.DATEONLY,
     allowNull: false,
     get() {
-        const rawValue = this.getDataValue('fecha');
-        if (!rawValue) return rawValue;
-        
-        if (typeof rawValue === 'string') return rawValue;
-        
-        const date = new Date(rawValue);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+      const rawValue = this.getDataValue('fecha');
+      if (!rawValue) return rawValue;
+
+      if (typeof rawValue === 'string') return rawValue;
+
+      const date = new Date(rawValue);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
-},
+  },
   montoVenta: {
     type: DataTypes.DECIMAL(15, 2),
     defaultValue: 0.00,
     allowNull: false,
-    field: 'monto_venta'
+    field: 'monto_venta',
+    get() {
+      const value = this.getDataValue('montoVenta');
+      return parseFloat(value) || 0;
+    }
   },
+
   asistencia: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
@@ -54,14 +59,14 @@ const KpiVentaDiaria = sequelize.define("KpiVentaDiaria", {
     field: 'area_puntuacion'
   },
   registradoPorUsuarioId: {
-  type: DataTypes.UUID,       // ✅ Debe ser UUID
-  allowNull: true,            // permite null si no hay usuario autenticado
-  field: 'registrado_por_usuario_id',
-  references: {
-    model: 'usuarios',        // ⚙️ nombre de la tabla real (ajusta si tu tabla es distinta)
-    key: 'id'
-  }
-},
+    type: DataTypes.UUID,       // ✅ Debe ser UUID
+    allowNull: true,            // permite null si no hay usuario autenticado
+    field: 'registrado_por_usuario_id',
+    references: {
+      model: 'usuarios',        // ⚙️ nombre de la tabla real (ajusta si tu tabla es distinta)
+      key: 'id'
+    }
+  },
 
 
   // (opcional pero recomendado) declarar la FK si no la crea el association:
