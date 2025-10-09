@@ -1,5 +1,7 @@
+'use strict';
+
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable("kpi_ventas_diarias", {
+  await queryInterface.createTable('kpi_ventas_diarias', {
     id: {
       type: Sequelize.INTEGER,
       autoIncrement: true,
@@ -34,28 +36,42 @@ export async function up(queryInterface, Sequelize) {
     registrado_por_usuario_id: {
       type: Sequelize.UUID,
       allowNull: true,
+      references: {
+        model: 'usuarios',
+        key: 'id',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
     },
     vendedorId: {
       type: Sequelize.UUID,
       allowNull: false,
       references: {
-        model: "vendedores",
-        key: "id",
+        model: 'vendedores',
+        key: 'id',
       },
-      onUpdate: "CASCADE",
-      onDelete: "CASCADE",
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
     },
     createdAt: {
       type: Sequelize.DATE,
       allowNull: false,
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
     },
     updatedAt: {
       type: Sequelize.DATE,
       allowNull: false,
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
     },
+  });
+
+  // 🔹 índice único (vendedorId + fecha)
+  await queryInterface.addIndex('kpi_ventas_diarias', ['vendedorId', 'fecha'], {
+    unique: true,
+    name: 'unique_vendedor_fecha',
   });
 }
 
 export async function down(queryInterface) {
-  await queryInterface.dropTable("kpi_ventas_diarias");
+  await queryInterface.dropTable('kpi_ventas_diarias');
 }
