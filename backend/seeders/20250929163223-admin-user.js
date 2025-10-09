@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 
 export async function up(queryInterface, Sequelize) {
@@ -5,7 +6,8 @@ export async function up(queryInterface, Sequelize) {
 
   await queryInterface.bulkInsert("usuarios", [
     {
-      nombre: "Administrador",   // 👈 aquí agregamos nombre
+      id: uuidv4(), // ✅ generar UUID manualmente
+      nombre: "Administrador",
       usuario: "admin",
       password: hash,
       rol: "admin",
