@@ -54,10 +54,15 @@ const KpiVentaDiaria = sequelize.define("KpiVentaDiaria", {
     field: 'area_puntuacion'
   },
   registradoPorUsuarioId: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    field: 'registrado_por_usuario_id'
-  },
+  type: DataTypes.UUID,       // ✅ Debe ser UUID
+  allowNull: true,            // permite null si no hay usuario autenticado
+  field: 'registrado_por_usuario_id',
+  references: {
+    model: 'usuarios',        // ⚙️ nombre de la tabla real (ajusta si tu tabla es distinta)
+    key: 'id'
+  }
+},
+
 
   // (opcional pero recomendado) declarar la FK si no la crea el association:
   vendedorId: {
