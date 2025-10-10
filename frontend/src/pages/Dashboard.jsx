@@ -26,9 +26,9 @@ const formatPesos = (valor) => {
 };
 
 // Función segura para mostrar porcentajes
-const safePercentage = (value) => {
-    if (value === undefined || value === null || isNaN(value)) return 0;
-    return Number(value.toFixed(0));
+const safePercentage = (value, decimales = 1) => {
+    if (value === undefined || value === null || isNaN(value)) return '0.0';
+    return Number(value).toFixed(decimales);
 };
 
 const Dashboard = () => {
@@ -477,15 +477,15 @@ const Dashboard = () => {
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={datosGrafica}>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis 
-                                    dataKey="dia" 
+                                <XAxis
+                                    dataKey="dia"
                                     label={{ value: 'Día del mes', position: 'insideBottom', offset: -5 }}
                                 />
-                                <YAxis 
+                                <YAxis
                                     tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                                     label={{ value: 'Ventas (Millones)', angle: -90, position: 'insideLeft' }}
                                 />
-                                <Tooltip 
+                                <Tooltip
                                     formatter={(value) => formatPesos(value)}
                                     labelFormatter={(label) => `Día ${label}`}
                                 />
