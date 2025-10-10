@@ -1,7 +1,8 @@
+// backend/src/controllers/kpiVentaDiariaController.js
 import KpiVentaDiaria from '../models/KpiVentaDiaria.js';
 import Vendedor from '../models/Vendedor.js';
 import { Op } from 'sequelize';
-import { esDiaLaboral } from '../../utils/formatters.js';
+import { esDiaLaboral, calculosPrecisos } from '../../utils/formatters.js';
 
 export const kpiVentaDiariaController = {
     async upsertVentaDiaria(req, res) {
@@ -16,19 +17,20 @@ export const kpiVentaDiariaController = {
                 areaPuntuacion
             } = req.body;
 
-            // ✅ AGREGAR ESTOS LOGS
             console.log('📅 Fecha recibida:', fecha);
             console.log('📅 Tipo:', typeof fecha);
             console.log('📅 Body completo:', req.body);
 
             const registradoPorUsuarioId = req.user.id;
 
-            // Validar que no sea domingo
+            // ✅ SI NO NECESITAS VALIDAR DÍAS LABORALES, COMENTA ESTO:
+            /*
             if (!esDiaLaboral(fecha)) {
                 return res.status(400).json({
                     error: 'No se pueden registrar ventas los domingos ni días festivos'
                 });
             }
+            */
 
             // Validar que si hay asistencia, debe haber puntuaciones
             if (asistencia) {
@@ -119,36 +121,50 @@ export const kpiVentaDiariaController = {
                 order: [['fecha', 'ASC']]
             });
 
-            // Calcular estadísticas con montos en pesos
-            const totalVentas = ventas.reduce((sum, v) => sum + parseFloat(v.montoVenta), 0);
+            // ✅ CÁLCULOS PRECISOS CON LAS NUEVAS FUNCIONES
+            const montosVenta = ventas.map(v => parseFloat(v.montoVenta) || 0);
+            const totalVentas = calculosPrecisos.sumarDecimales(montosVenta);
+            
             const diasTrabajados = ventas.filter(v => v.asistencia).length;
             const diasFaltados = ventas.filter(v => !v.asistencia).length;
-            const promedioVentas = diasTrabajados > 0 ? totalVentas / diasTrabajados : 0;
+            
+            const promedioVentas = calculosPrecisos.dividirConPrecision(
+                totalVentas, 
+                diasTrabajados, 
+                2
+            );
 
-            // Calcular promedios de conducta
+            // ✅ PROMEDIOS DE CONDUCTA PRECISOS
             const evaluacionesConPuntuacion = ventas.filter(v =>
                 v.aprendizajePuntuacion && v.vestimentaPuntuacion && v.areaPuntuacion
             );
 
-            let promediosConducta = { aprendizaje: 0, vestimenta: 0, area: 0 };
-            if (evaluacionesConPuntuacion.length > 0) {
-                promediosConducta = {
-                    aprendizaje: evaluacionesConPuntuacion.reduce((sum, v) => sum + v.aprendizajePuntuacion, 0) / evaluacionesConPuntuacion.length,
-                    vestimenta: evaluacionesConPuntuacion.reduce((sum, v) => sum + v.vestimentaPuntuacion, 0) / evaluacionesConPuntuacion.length,
-                    area: evaluacionesConPuntuacion.reduce((sum, v) => sum + v.areaPuntuacion, 0) / evaluacionesConPuntuacion.length
-                };
-            }
+            const promediosConducta = {
+                aprendizaje: calculosPrecisos.calcularPromedio(
+                    evaluacionesConPuntuacion.map(v => v.aprendizajePuntuacion), 2
+                ),
+                vestimenta: calculosPrecisos.calcularPromedio(
+                    evaluacionesConPuntuacion.map(v => v.vestimentaPuntuacion), 2
+                ),
+                area: calculosPrecisos.calcularPromedio(
+                    evaluacionesConPuntuacion.map(v => v.areaPuntuacion), 2
+                )
+            };
 
             return res.json({
                 data: {
                     ventas,
                     resumen: {
-                        totalVentas,
+                        totalVentas: Number(totalVentas.toFixed(2)),
                         diasTrabajados,
                         diasFaltados,
-                        promedioVentas,
+                        promedioVentas: Number(promedioVentas.toFixed(2)),
                         totalDias: ventas.length,
-                        promediosConducta
+                        promediosConducta: {
+                            aprendizaje: Number(promediosConducta.aprendizaje.toFixed(2)),
+                            vestimenta: Number(promediosConducta.vestimenta.toFixed(2)),
+                            area: Number(promediosConducta.area.toFixed(2))
+                        }
                     }
                 }
             });
@@ -158,7 +174,6 @@ export const kpiVentaDiariaController = {
         }
     },
 
-    // Nuevo endpoint para obtener registro específico por fecha y vendedor
     async getRegistroPorFecha(req, res) {
         try {
             const { vendedorId, fecha } = req.params;

@@ -8,11 +8,9 @@ export default function useTheme() {
     // Solo ejecutar en el cliente
     setMounted(true);
     
-    // Cargar tema guardado o preferencia del sistema
-    const savedTheme = localStorage.getItem('theme');
+    // Detectar preferencia del sistema
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    const initialTheme = systemPrefersDark ? 'dark' : 'light';
     setTheme(initialTheme);
   }, []);
 
@@ -28,14 +26,12 @@ export default function useTheme() {
     
     // Actualizar atributo data-theme para mejor compatibilidad
     root.setAttribute('data-theme', theme);
-    
-    // Guardar preferencia
-    localStorage.setItem('theme', theme);
   }, [theme, mounted]);
 
   const toggleTheme = () => {
     setTheme(current => (current === 'light' ? 'dark' : 'light'));
   };
 
+  // Retornar como array para usar con destructuring [theme, toggleTheme]
   return [mounted ? theme : 'light', toggleTheme];
 }

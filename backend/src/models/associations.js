@@ -17,7 +17,7 @@ Vendedor.hasMany(KpiEvaluacionMensual, {
 
 // --- Relaciones para KPI Venta Diaria ---
 KpiVentaDiaria.belongsTo(Vendedor, {
-    foreignKey: 'vendedorId',
+    foreignKey: 'vendedorId', // ✅ Ahora es UUID
     as: 'vendedor'
 });
 

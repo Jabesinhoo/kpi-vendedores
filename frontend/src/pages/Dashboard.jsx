@@ -25,6 +25,12 @@ const formatPesos = (valor) => {
     }).format(valor);
 };
 
+// Función segura para mostrar porcentajes
+const safePercentage = (value) => {
+    if (value === undefined || value === null || isNaN(value)) return 0;
+    return Number(value.toFixed(0));
+};
+
 const Dashboard = () => {
     const [vendedores, setVendedores] = useState([]);
     const [vendedorSeleccionado, setVendedorSeleccionado] = useState('todos');
@@ -100,6 +106,8 @@ const Dashboard = () => {
             if (response.ok) {
                 const data = await response.json();
                 setEstadisticas(data.data);
+            } else {
+                console.error('Error en respuesta del servidor:', response.status);
             }
         } catch (error) {
             console.error('Error cargando estadísticas:', error);
@@ -131,9 +139,9 @@ const Dashboard = () => {
     // Vista de todos los vendedores
     if (vendedorSeleccionado === 'todos') {
         const totales = estadisticasTodos.reduce((acc, est) => ({
-            ventas: acc.ventas + est.ventasTotales,
-            comision: acc.comision + est.comision.monto,
-            kpiPromedio: acc.kpiPromedio + est.kpis.kpiTotal
+            ventas: acc.ventas + (est.ventasTotales || 0),
+            comision: acc.comision + (est.comision?.monto || 0),
+            kpiPromedio: acc.kpiPromedio + (est.kpis?.kpiTotal || 0)
         }), { ventas: 0, comision: 0, kpiPromedio: 0 });
 
         if (estadisticasTodos.length > 0) {
@@ -209,7 +217,7 @@ const Dashboard = () => {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-green-100 text-sm">KPI Promedio</p>
-                                    <p className="text-2xl font-bold mt-1">{totales.kpiPromedio.toFixed(0)}%</p>
+                                    <p className="text-2xl font-bold mt-1">{safePercentage(totales.kpiPromedio)}%</p>
                                     <div className="flex items-center mt-2 text-green-100">
                                         <Award className="h-4 w-4 mr-1" />
                                         <span className="text-sm">{estadisticasTodos.length} vendedores</span>
@@ -264,25 +272,25 @@ const Dashboard = () => {
                                     {estadisticasTodos.map((est) => (
                                         <tr key={est.vendedorId} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                                             <td className="p-3 font-medium">{est.vendedorNombre}</td>
-                                            <td className="p-3 text-right">{formatPesos(est.ventasTotales)}</td>
-                                            <td className="p-3 text-right">{formatPesos(est.comision.monto)}</td>
+                                            <td className="p-3 text-right">{formatPesos(est.ventasTotales || 0)}</td>
+                                            <td className="p-3 text-right">{formatPesos(est.comision?.monto || 0)}</td>
                                             <td className="p-3 text-right">
-                                                <span className={`font-semibold ${est.kpis.kpiVentas >= 70 ? 'text-green-600' : 'text-orange-600'}`}>
-                                                    {est.kpis.kpiVentas.toFixed(0)}%
+                                                <span className={`font-semibold ${(est.kpis?.kpiVentas || 0) >= 70 ? 'text-green-600' : 'text-orange-600'}`}>
+                                                    {safePercentage(est.kpis?.kpiVentas)}%
                                                 </span>
                                             </td>
                                             <td className="p-3 text-right">
-                                                <span className={`font-semibold ${est.kpis.kpiAsistenciaConducta >= 10 ? 'text-green-600' : 'text-orange-600'}`}>
-                                                    {est.kpis.kpiAsistenciaConducta.toFixed(0)}%
+                                                <span className={`font-semibold ${(est.kpis?.porcentajeAsistencia || 0) >= 80 ? 'text-green-600' : 'text-orange-600'}`}>
+                                                    {safePercentage(est.kpis?.porcentajeAsistencia)}%
                                                 </span>
                                             </td>
                                             <td className="p-3 text-right">
-                                                <span className={`font-bold ${est.kpis.kpiTotal >= 80 ? 'text-green-600' : est.kpis.kpiTotal >= 60 ? 'text-orange-600' : 'text-red-600'}`}>
-                                                    {est.kpis.kpiTotal.toFixed(0)}%
+                                                <span className={`font-bold ${(est.kpis?.kpiTotal || 0) >= 80 ? 'text-green-600' : (est.kpis?.kpiTotal || 0) >= 60 ? 'text-orange-600' : 'text-red-600'}`}>
+                                                    {safePercentage(est.kpis?.kpiTotal)}%
                                                 </span>
                                             </td>
                                             <td className="p-3 text-center">
-                                                {est.kpis.diaLibre ? '✅' : '❌'}
+                                                {est.kpis?.diaLibre ? '✅' : '❌'}
                                             </td>
                                             <td className="p-3 text-center">
                                                 <Button
@@ -306,15 +314,31 @@ const Dashboard = () => {
 
     // Vista individual de vendedor
     if (!estadisticas) {
-        return null;
+        return (
+            <div className="space-y-6">
+                <div className="text-center py-12">
+                    <p className="text-gray-600">No se encontraron datos para este vendedor.</p>
+                </div>
+            </div>
+        );
     }
 
     const { ventasTotales, kpis, comision, ventasDiarias, diasTrabajados, totalDias } = estadisticas;
 
+    // Usar valores por defecto si kpis es undefined
+    const kpisData = kpis || {
+        kpiVentas: 0,
+        porcentajeAsistencia: 0,
+        kpiConducta: 0,
+        kpiTotal: 0,
+        diaLibre: false,
+        evaluacionPromedio: 0
+    };
+
     // Preparar datos para la gráfica
-    const datosGrafica = ventasDiarias.map(venta => ({
+    const datosGrafica = (ventasDiarias || []).map(venta => ({
         dia: new Date(venta.fecha).getDate(),
-        ventas: venta.montoVenta,
+        ventas: venta.montoVenta || 0,
         fecha: new Date(venta.fecha).toLocaleDateString('es', { day: '2-digit', month: 'short' })
     }));
 
@@ -371,11 +395,11 @@ const Dashboard = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-blue-100 text-sm">Ventas del mes</p>
-                                <p className="text-2xl font-bold mt-1">{formatPesos(ventasTotales)}</p>
+                                <p className="text-2xl font-bold mt-1">{formatPesos(ventasTotales || 0)}</p>
                                 <div className="flex items-center mt-2 text-blue-100">
                                     <DollarSign className="h-4 w-4 mr-1" />
                                     <span className="text-sm">
-                                        Comisión {comision.porcentaje}%: {formatPesos(comision.monto)}
+                                        Comisión {(comision?.porcentaje || 0)}%: {formatPesos(comision?.monto || 0)}
                                     </span>
                                 </div>
                             </div>
@@ -389,11 +413,11 @@ const Dashboard = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-green-100 text-sm">Cumplimiento Ventas</p>
-                                <p className="text-2xl font-bold mt-1">{kpis.kpiVentas.toFixed(0)}%</p>
+                                <p className="text-2xl font-bold mt-1">{safePercentage(kpisData.kpiVentas)}%</p>
                                 <div className="flex items-center mt-2 text-green-100">
                                     <Target className="h-4 w-4 mr-1" />
                                     <span className="text-sm">
-                                        {kpis.diaLibre ? 'Día libre' : 'Sin día libre'}
+                                        {kpisData.diaLibre ? 'Día libre' : 'Sin día libre'}
                                     </span>
                                 </div>
                             </div>
@@ -406,12 +430,12 @@ const Dashboard = () => {
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-orange-100 text-sm">Asistencia y Área de Trabajo</p>
-                                <p className="text-2xl font-bold mt-1">{kpis.kpiAsistenciaConducta.toFixed(0)}%</p>
+                                <p className="text-orange-100 text-sm">Asistencia y Conducta</p>
+                                <p className="text-2xl font-bold mt-1">{safePercentage(kpisData.porcentajeAsistencia)}%</p>
                                 <div className="flex items-center mt-2 text-orange-100">
                                     <Calendar className="h-4 w-4 mr-1" />
                                     <span className="text-sm">
-                                        {diasTrabajados}/{totalDias} asistencias
+                                        {(diasTrabajados || 0)}/{(totalDias || 0)} días • Conducta: {safePercentage(kpisData.kpiConducta)}%
                                     </span>
                                 </div>
                             </div>
@@ -425,7 +449,7 @@ const Dashboard = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-purple-100 text-sm">KPI Total</p>
-                                <p className="text-2xl font-bold mt-1">{kpis.kpiTotal.toFixed(0)}%</p>
+                                <p className="text-2xl font-bold mt-1">{safePercentage(kpisData.kpiTotal)}%</p>
                                 <div className="flex items-center mt-2 text-purple-100">
                                     <Award className="h-4 w-4 mr-1" />
                                     <span className="text-sm">
@@ -483,26 +507,39 @@ const Dashboard = () => {
                         <div className="space-y-4">
                             <div>
                                 <div className="flex justify-between text-sm mb-1">
-                                    <span>Ventas ({kpis.kpiVentas.toFixed(0)}%)</span>
-                                    <span>70% máximo</span>
+                                    <span>Ventas ({safePercentage(kpisData.kpiVentas)}%)</span>
+                                    <span>Meta: {formatPesos(120000000)}</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div
                                         className="bg-blue-600 h-2 rounded-full transition-all"
-                                        style={{ width: `${Math.min((kpis.kpiVentas / 70) * 100, 100)}%` }}
+                                        style={{ width: `${Math.min(kpisData.kpiVentas, 100)}%` }}
                                     ></div>
                                 </div>
                             </div>
 
                             <div>
                                 <div className="flex justify-between text-sm mb-1">
-                                    <span>Asistencia y Área de trabajo ({kpis.kpiAsistenciaConducta.toFixed(0)}%)</span>
-                                    <span>10% máximo</span>
+                                    <span>Asistencia ({safePercentage(kpisData.porcentajeAsistencia)}%)</span>
+                                    <span>{(diasTrabajados || 0)}/{(totalDias || 0)} días</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div
                                         className="bg-green-600 h-2 rounded-full transition-all"
-                                        style={{ width: `${Math.min((kpis.kpiAsistenciaConducta / 10) * 100, 100)}%` }}
+                                        style={{ width: `${Math.min(kpisData.porcentajeAsistencia, 100)}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="flex justify-between text-sm mb-1">
+                                    <span>Conducta ({safePercentage(kpisData.kpiConducta)}%)</span>
+                                    <span>Promedio: {(kpisData.evaluacionPromedio || 0).toFixed(1)}/5</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div
+                                        className="bg-purple-600 h-2 rounded-full transition-all"
+                                        style={{ width: `${Math.min(kpisData.kpiConducta, 100)}%` }}
                                     ></div>
                                 </div>
                             </div>
@@ -510,12 +547,12 @@ const Dashboard = () => {
                             <div className="pt-4 border-t dark:border-gray-700">
                                 <div className="flex justify-between text-sm mb-1">
                                     <span className="font-semibold">KPI Total</span>
-                                    <span className="font-semibold">{kpis.kpiTotal.toFixed(0)}%</span>
+                                    <span className="font-semibold">{safePercentage(kpisData.kpiTotal)}%</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-3">
                                     <div
-                                        className="bg-gradient-to-r from-blue-600 to-green-600 h-3 rounded-full transition-all"
-                                        style={{ width: `${Math.min(kpis.kpiTotal, 100)}%` }}
+                                        className="bg-gradient-to-r from-blue-600 via-green-600 to-purple-600 h-3 rounded-full transition-all"
+                                        style={{ width: `${Math.min(kpisData.kpiTotal, 100)}%` }}
                                     ></div>
                                 </div>
                             </div>
@@ -544,7 +581,7 @@ const Dashboard = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {ventasDiarias.map((venta) => (
+                                {(ventasDiarias || []).map((venta) => (
                                     <tr key={venta.id} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                                         <td className="p-3">
                                             {new Date(venta.fecha).toLocaleDateString('es', {
@@ -553,7 +590,7 @@ const Dashboard = () => {
                                                 month: 'short'
                                             })}
                                         </td>
-                                        <td className="p-3 font-medium">{formatPesos(venta.montoVenta)}</td>
+                                        <td className="p-3 font-medium">{formatPesos(venta.montoVenta || 0)}</td>
                                         <td className="p-3">
                                             {venta.asistencia ? (
                                                 <span className="text-green-600">✓</span>

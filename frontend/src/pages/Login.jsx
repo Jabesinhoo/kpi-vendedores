@@ -188,16 +188,6 @@ const handleSubmit = async (e) => {
                         {isSubmitting ? 'Verificando...' : 'Iniciar Sesión'}
                     </button>
                 </form>
-
-                <p className={`text-center text-sm mt-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    ¿No tienes cuenta?{" "}
-                    <a
-                        href="/register"
-                        className={`font-semibold transition ${linkClass}`}
-                    >
-                        Regístrate aquí
-                    </a>
-                </p>
             </div>
         </div>
     );
