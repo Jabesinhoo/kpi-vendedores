@@ -269,41 +269,44 @@ const Dashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {estadisticasTodos.map((est) => (
-                                        <tr key={est.vendedorId} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
-                                            <td className="p-3 font-medium">{est.vendedorNombre}</td>
-                                            <td className="p-3 text-right">{formatPesos(est.ventasTotales || 0)}</td>
-                                            <td className="p-3 text-right">{formatPesos(est.comision?.monto || 0)}</td>
-                                            <td className="p-3 text-right">
-                                                <span className={`font-semibold ${(est.kpis?.kpiVentas || 0) >= 70 ? 'text-green-600' : 'text-orange-600'}`}>
-                                                    {safePercentage(est.kpis?.kpiVentas)}%
-                                                </span>
-                                            </td>
-                                            <td className="p-3 text-right">
-                                                <span className={`font-semibold ${(est.kpis?.porcentajeAsistencia || 0) >= 80 ? 'text-green-600' : 'text-orange-600'}`}>
-                                                    {safePercentage(est.kpis?.porcentajeAsistencia)}%
-                                                </span>
-                                            </td>
-                                            <td className="p-3 text-right">
-                                                <span className={`font-bold ${(est.kpis?.kpiTotal || 0) >= 80 ? 'text-green-600' : (est.kpis?.kpiTotal || 0) >= 60 ? 'text-orange-600' : 'text-red-600'}`}>
-                                                    {safePercentage(est.kpis?.kpiTotal)}%
-                                                </span>
-                                            </td>
-                                            <td className="p-3 text-center">
-                                                {est.kpis?.diaLibre ? '✅' : '❌'}
-                                            </td>
-                                            <td className="p-3 text-center">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => setVendedorSeleccionado(est.vendedorId)}
-                                                >
-                                                    Ver detalle
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {estadisticasTodos
+                                        .sort((a, b) => (b.ventasTotales || 0) - (a.ventasTotales || 0))
+                                        .map((est) => (
+                                            <tr key={est.vendedorId} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                <td className="p-3 font-medium">{est.vendedorNombre}</td>
+                                                <td className="p-3 text-right">{formatPesos(est.ventasTotales || 0)}</td>
+                                                <td className="p-3 text-right">{formatPesos(est.comision?.monto || 0)}</td>
+                                                <td className="p-3 text-right">
+                                                    <span className={`font-semibold ${(est.kpis?.kpiVentas || 0) >= 70 ? 'text-green-600' : 'text-orange-600'}`}>
+                                                        {safePercentage(est.kpis?.kpiVentas)}%
+                                                    </span>
+                                                </td>
+                                                <td className="p-3 text-right">
+                                                    <span className={`font-semibold ${(est.kpis?.porcentajeAsistencia || 0) >= 80 ? 'text-green-600' : 'text-orange-600'}`}>
+                                                        {safePercentage(est.kpis?.porcentajeAsistencia)}%
+                                                    </span>
+                                                </td>
+                                                <td className="p-3 text-right">
+                                                    <span className={`font-bold ${(est.kpis?.kpiTotal || 0) >= 80 ? 'text-green-600' : (est.kpis?.kpiTotal || 0) >= 60 ? 'text-orange-600' : 'text-red-600'}`}>
+                                                        {safePercentage(est.kpis?.kpiTotal)}%
+                                                    </span>
+                                                </td>
+                                                <td className="p-3 text-center">
+                                                    {est.kpis?.diaLibre ? '✅' : '❌'}
+                                                </td>
+                                                <td className="p-3 text-center">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => setVendedorSeleccionado(est.vendedorId)}
+                                                    >
+                                                        Ver detalle
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
                                 </tbody>
+
                             </table>
                         </div>
                     </CardContent>
