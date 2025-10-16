@@ -31,9 +31,6 @@ jobs:
             echo ">>> Backend: install & restart"
             cd backend
             npm install 
-            # Migraciones/seeders (si aplica en producción):
-            # npx sequelize-cli db:migrate --env production || true
-            # npx sequelize-cli db:seed:all --env production || true
             cd ..
 
             echo ">>> Frontend: install & build"
