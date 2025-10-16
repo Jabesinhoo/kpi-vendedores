@@ -292,7 +292,7 @@ const Dashboard = () => {
                                                     </span>
                                                 </td>
                                                 <td className="p-3 text-center">
-                                                    {est.kpis?.diaLibre ? '✅' : '❌'}
+                                                    {est.kpis?.diaLibre ? '✓' : '✗'}
                                                 </td>
                                                 <td className="p-3 text-center">
                                                     <Button
