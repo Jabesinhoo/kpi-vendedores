@@ -45,12 +45,14 @@ const Dashboard = () => {
     }, []);
 
     useEffect(() => {
-        if (vendedorSeleccionado === 'todos') {
-            cargarEstadisticasTodos();
-        } else if (vendedorSeleccionado) {
-            cargarEstadisticasVendedor();
+        if (vendedores.length > 0) {
+            if (vendedorSeleccionado === 'todos') {
+                cargarEstadisticasTodos();
+            } else if (vendedorSeleccionado) {
+                cargarEstadisticasVendedor();
+            }
         }
-    }, [vendedorSeleccionado, mes, anio]);
+    }, [vendedorSeleccionado, mes, anio, vendedores]);
 
     const cargarVendedores = async () => {
         try {
@@ -72,6 +74,36 @@ const Dashboard = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
+            
+            // ✅ USAR "all" EN LA LLAMADA API
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}api/kpi/dashboard/all/${mes}/${anio}`,
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('📊 Datos de todos los vendedores:', data);
+                
+                if (data.success) {
+                    setEstadisticas(data.data);
+                    
+                    // Cargar estadísticas individuales para la tabla
+                    await cargarEstadisticasIndividuales();
+                }
+            } else {
+                console.error('Error en respuesta del servidor para "todos":', response.status);
+            }
+        } catch (error) {
+            console.error('Error cargando estadísticas de todos:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const cargarEstadisticasIndividuales = async () => {
+        try {
+            const token = localStorage.getItem('token');
             const promesas = vendedores.map(vendedor =>
                 fetch(
                     `${import.meta.env.VITE_API_URL}api/kpi/dashboard/${vendedor.id}/${mes}/${anio}`,
@@ -88,9 +120,7 @@ const Dashboard = () => {
 
             setEstadisticasTodos(estadisticasConNombre);
         } catch (error) {
-            console.error('Error cargando estadísticas de todos:', error);
-        } finally {
-            setLoading(false);
+            console.error('Error cargando estadísticas individuales:', error);
         }
     };
 
@@ -105,7 +135,9 @@ const Dashboard = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                setEstadisticas(data.data);
+                if (data.success) {
+                    setEstadisticas(data.data);
+                }
             } else {
                 console.error('Error en respuesta del servidor:', response.status);
             }
@@ -306,7 +338,6 @@ const Dashboard = () => {
                                             </tr>
                                         ))}
                                 </tbody>
-
                             </table>
                         </div>
                     </CardContent>

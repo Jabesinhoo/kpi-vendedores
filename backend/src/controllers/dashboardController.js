@@ -11,26 +11,29 @@ export const dashboardController = {
             
             console.log('📊 Dashboard request:', { vendedorId, mes, anio });
 
-            // Validar que vendedorId sea un UUID válido
-            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-            if (!uuidRegex.test(vendedorId)) {
-                return res.status(400).json({ 
-                    error: 'ID de vendedor no válido' 
-                });
-            }
+            // ✅ ACEPTAR "all" COMO VENDEDOR ID VÁLIDO
+            if (vendedorId !== 'all') {
+                // Validar que vendedorId sea un UUID válido solo si no es "all"
+                const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                if (!uuidRegex.test(vendedorId)) {
+                    return res.status(400).json({ 
+                        error: 'ID de vendedor no válido' 
+                    });
+                }
 
-            // Verificar si el vendedor existe
-            const vendedor = await Vendedor.findByPk(vendedorId);
-            if (!vendedor) {
-                return res.status(404).json({ 
-                    error: 'Vendedor no encontrado' 
-                });
-            }
+                // Verificar si el vendedor existe
+                const vendedor = await Vendedor.findByPk(vendedorId);
+                if (!vendedor) {
+                    return res.status(404).json({ 
+                        error: 'Vendedor no encontrado' 
+                    });
+                }
 
-            if (!vendedor.activo) {
-                return res.status(400).json({ 
-                    error: 'Vendedor inactivo' 
-                });
+                if (!vendedor.activo) {
+                    return res.status(400).json({ 
+                        error: 'Vendedor inactivo' 
+                    });
+                }
             }
 
             // Convertir mes y anio a números
@@ -53,13 +56,35 @@ export const dashboardController = {
             const fechaInicio = new Date(anioNum, mesNum - 1, 1);
             const fechaFin = new Date(anioNum, mesNum, 0);
 
+            // ✅ CONSTRUIR WHERE CLAUSE DINÁMICAMENTE
+            const whereClause = {
+                fecha: {
+                    [Op.between]: [fechaInicio, fechaFin]
+                }
+            };
+
+            // Si no es "all", filtrar por vendedor específico
+            if (vendedorId !== 'all') {
+                whereClause.vendedorId = vendedorId;
+            } else {
+                // Para "all", solo incluir vendedores activos
+                const vendedoresActivos = await Vendedor.findAll({
+                    where: { activo: true },
+                    attributes: ['id']
+                });
+                
+                whereClause.vendedorId = {
+                    [Op.in]: vendedoresActivos.map(v => v.id)
+                };
+            }
+
             const ventas = await KpiVentaDiaria.findAll({
-                where: {
-                    vendedorId: vendedorId, // ✅ Usar el UUID directamente
-                    fecha: {
-                        [Op.between]: [fechaInicio, fechaFin]
-                    }
-                },
+                where: whereClause,
+                include: [{
+                    model: Vendedor,
+                    as: 'vendedor',
+                    attributes: ['id', 'nombre', 'activo']
+                }],
                 order: [['fecha', 'ASC']]
             });
 
@@ -83,7 +108,7 @@ export const dashboardController = {
                 });
             }
 
-            // ✅ CÁLCULOS PRECISOS
+            // ✅ CÁLCULOS PRECISOS PARA UNO O TODOS LOS VENDEDORES
             const montosVenta = ventas.map(v => parseFloat(v.montoVenta) || 0);
             const ventasTotales = calculosPrecisos.sumarDecimales(montosVenta);
             

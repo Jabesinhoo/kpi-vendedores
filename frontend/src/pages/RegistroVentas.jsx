@@ -138,74 +138,87 @@ const RegistroVentas = () => {
         }
     };
 
+    // En el handleSubmit, modifica las validaciones:
     const handleSubmit = async (e) => {
-    e.preventDefault();
-    setNotification({ message: '', type: '' });
-    setLoading(true);
+        e.preventDefault();
+        setNotification({ message: '', type: '' });
+        setLoading(true);
 
-    if (!formData.vendedorId) {
-        showNotification('Por favor seleccione un vendedor', 'error');
-        setLoading(false);
-        return;
-    }
-
-    if (esDiaNoLaboral) {
-        showNotification('Hoy es día no laboral. El registro es opcional.', 'warning');
-    }
-
-    // Validaciones
-    if (formData.asistencia) {
-        if (!formData.montoVenta || parseFloat(formData.montoVenta) < 0) {
-            showNotification('Si el vendedor asistió, debe ingresar un monto de venta válido', 'error');
+        if (!formData.vendedorId) {
+            showNotification('Por favor seleccione un vendedor', 'error');
             setLoading(false);
             return;
         }
-    } else {
-        setFormData(prev => ({ ...prev, montoVenta: '0' }));
-    }
 
-    try {
-        const token = localStorage.getItem('token');
-        
-        console.log('Fecha del formulario:', formData.fecha);
-        
-        const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/ventas-diarias`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                vendedorId: formData.vendedorId,
-                fecha: formData.fecha,
-                montoVenta: formData.asistencia ? parseFloat(formData.montoVenta) : 0,
-                asistencia: formData.asistencia,
-                aprendizajePuntuacion: formData.asistencia ? formData.aprendizajePuntuacion : null,
-                vestimentaPuntuacion: formData.asistencia ? formData.vestimentaPuntuacion : null,
-                areaPuntuacion: formData.asistencia ? formData.areaPuntuacion : null
-            })
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            showNotification(
-                `${result.message} ${registroExistente ? '(Actualizado)' : '(Creado)'}`,
-                'success'
-            );
-
-            cargarRegistrosRecientes();
-            cargarRegistroExistente();
-        } else {
-            const error = await response.json();
-            showNotification(error.error || 'Error al guardar el registro', 'error');
+        if (esDiaNoLaboral) {
+            showNotification('Hoy es día no laboral. El registro es opcional.', 'warning');
         }
-    } catch (error) {
-        console.error('Error guardando registro:', error);
-        showNotification('Error de conexión con el servidor', 'error');
-    } finally {
-        setLoading(false);
-    }
-};
+
+        // ✅ VALIDACIONES ACTUALIZADAS PARA PERMITIR NEGATIVOS
+        if (formData.asistencia) {
+            if (formData.montoVenta === '' || formData.montoVenta === null) {
+                showNotification('Si el vendedor asistió, debe ingresar un monto de venta', 'error');
+                setLoading(false);
+                return;
+            }
+
+            // ✅ Validar que el monto sea un número válido (puede ser negativo)
+            const monto = parseFloat(formData.montoVenta);
+            if (isNaN(monto)) {
+                showNotification('El monto de venta debe ser un número válido', 'error');
+                setLoading(false);
+                return;
+            }
+        } else {
+            // Si no asistió, establecer monto en 0 por defecto
+            // pero permitir que el usuario pueda cambiarlo si necesita registrar negativo
+            if (!formData.montoVenta) {
+                setFormData(prev => ({ ...prev, montoVenta: '0' }));
+            }
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+
+            console.log('Fecha del formulario:', formData.fecha);
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}api/kpi/ventas-diarias`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    vendedorId: formData.vendedorId,
+                    fecha: formData.fecha,
+                    montoVenta: formData.montoVenta !== '' ? parseFloat(formData.montoVenta) : 0,
+                    asistencia: formData.asistencia,
+                    aprendizajePuntuacion: formData.asistencia ? formData.aprendizajePuntuacion : null,
+                    vestimentaPuntuacion: formData.asistencia ? formData.vestimentaPuntuacion : null,
+                    areaPuntuacion: formData.asistencia ? formData.areaPuntuacion : null
+                })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showNotification(
+                    `${result.message} ${registroExistente ? '(Actualizado)' : '(Creado)'}`,
+                    'success'
+                );
+
+                cargarRegistrosRecientes();
+                cargarRegistroExistente();
+            } else {
+                const error = await response.json();
+                showNotification(error.error || 'Error al guardar el registro', 'error');
+            }
+        } catch (error) {
+            console.error('Error guardando registro:', error);
+            showNotification('Error de conexión con el servidor', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const getVendedorNombre = (vendedorId) => {
         const vendedor = vendedores.find(v => v.id === vendedorId);
@@ -361,12 +374,12 @@ const RegistroVentas = () => {
                                 <div className="space-y-2">
                                     <Label htmlFor="montoVenta" className="text-sm font-medium">
                                         Monto de Ventas del Día *
+                                        <span className="text-xs text-gray-500 ml-1">(puede ser negativo para devoluciones)</span>
                                     </Label>
                                     <div className="relative">
                                         <Input
                                             type="number"
-                                            step="1"     // acepta cualquier número entero
-                                            min="0"
+                                            step="0.01"     // ✅ Permite decimales
                                             id="montoVenta"
                                             value={formData.montoVenta}
                                             onChange={(e) => setFormData({ ...formData, montoVenta: e.target.value })}
@@ -374,14 +387,17 @@ const RegistroVentas = () => {
                                             required
                                             className="w-full p-3 pr-24 text-lg font-semibold"
                                         />
-
                                         <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                                             <span className="text-gray-500 text-sm">COP</span>
                                         </div>
                                     </div>
                                     {formData.montoVenta && (
-                                        <p className="text-sm text-green-600 font-medium">
+                                        <p className={`text-sm font-medium ${parseFloat(formData.montoVenta) < 0
+                                            ? 'text-red-600'
+                                            : 'text-green-600'
+                                            }`}>
                                             {formatPesos(parseFloat(formData.montoVenta))}
+                                            {parseFloat(formData.montoVenta) < 0 && ' (Devolución)'}
                                         </p>
                                     )}
                                 </div>
@@ -478,6 +494,15 @@ const RegistroVentas = () => {
                                     {registro.asistencia && (
                                         <>
                                             <div className="flex justify-between items-center mb-2">
+                                                <span className={`font-semibold text-lg ${registro.montoVenta < 0
+                                                        ? 'text-red-600'
+                                                        : 'text-green-600'
+                                                    }`}>
+                                                    {formatPesos(registro.montoVenta)}
+                                                    {registro.montoVenta < 0 && (
+                                                        <span className="text-xs ml-1 text-red-500">(Devolución)</span>
+                                                    )}
+                                                </span>
                                                 <span className="font-semibold text-green-600 text-lg">
                                                     {formatPesos(registro.montoVenta)}
                                                 </span>

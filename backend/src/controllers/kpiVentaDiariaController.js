@@ -23,27 +23,26 @@ export const kpiVentaDiariaController = {
 
             const registradoPorUsuarioId = req.user.id;
 
-            // ✅ SI NO NECESITAS VALIDAR DÍAS LABORALES, COMENTA ESTO:
-            /*
-            if (!esDiaLaboral(fecha)) {
-                return res.status(400).json({
-                    error: 'No se pueden registrar ventas los domingos ni días festivos'
-                });
-            }
-            */
-
-            // Validar que si hay asistencia, debe haber puntuaciones
+            // ✅ PERMITIR VALORES NEGATIVOS - REMOVER VALIDACIONES QUE LOS BLOQUEAN
             if (asistencia) {
+                if (montoVenta === undefined || montoVenta === null) {
+                    return res.status(400).json({
+                        error: 'Si el vendedor asistió, debe ingresar un monto de venta'
+                    });
+                }
+                
+                // ✅ Validar que las puntuaciones estén presentes
                 if (!aprendizajePuntuacion || !vestimentaPuntuacion || !areaPuntuacion) {
                     return res.status(400).json({
                         error: 'Si el vendedor asistió, debe completar todas las puntuaciones de conducta'
                     });
                 }
             } else {
-                // Si no asistió, no puede haber ventas ni puntuaciones
-                if (montoVenta > 0) {
+                // Si no asistió, no puede haber puntuaciones
+                // ✅ PERO SÍ PUEDE HABER VENTAS NEGATIVAS (devoluciones, etc.)
+                if (aprendizajePuntuacion || vestimentaPuntuacion || areaPuntuacion) {
                     return res.status(400).json({
-                        error: 'No puede haber ventas si el vendedor no asistió'
+                        error: 'No puede haber puntuaciones de conducta si el vendedor no asistió'
                     });
                 }
             }
@@ -51,7 +50,7 @@ export const kpiVentaDiariaController = {
             const [venta, created] = await KpiVentaDiaria.upsert({
                 vendedorId,
                 fecha,
-                montoVenta: parseFloat(montoVenta) || 0,
+                montoVenta: parseFloat(montoVenta) || 0, // ✅ Esto acepta negativos
                 asistencia,
                 aprendizajePuntuacion: asistencia ? parseInt(aprendizajePuntuacion) : null,
                 vestimentaPuntuacion: asistencia ? parseInt(vestimentaPuntuacion) : null,
